@@ -44,7 +44,9 @@ const ME = gql`
 `;
 
 export default function App() {
-  const { data, error, loading, refetch } = useQuery(ME);
+  const { data, error, loading, refetch } = useQuery(ME, {
+    notifyOnNetworkStatusChange: true,
+  });
 
   if (error) {
     return <div>There was an error fetching the current user.</div>;

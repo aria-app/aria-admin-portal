@@ -2,18 +2,14 @@ import { gql, useMutation } from '@apollo/client';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
-import { Redirect } from '@reach/router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import * as yup from 'yup';
-
-import shared from '../../shared';
-
-const { useUser } = shared.hooks;
 
 const Root = styled.div({
   display: 'flex',
@@ -45,20 +41,24 @@ const LOGIN = gql`
 `;
 
 export default function Login(props) {
-  const { onLoginComplete } = props;
+  const { navigate, onLoginComplete } = props;
   const { control, errors, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
   const [login, { data }] = useMutation(LOGIN);
-  const user = useUser();
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
 
   const handleLoginClick = React.useCallback(
-    ({ email }) => {
-      login({
+    async ({ email }) => {
+      setIsLoggingIn(true);
+
+      await login({
         variables: {
           email,
         },
       });
+
+      setIsLoggingIn(false);
     },
     [login],
   );
@@ -67,12 +67,9 @@ export default function Login(props) {
     if (data && data.login) {
       window.localStorage.setItem('token', data.login.token);
       onLoginComplete();
+      navigate('/songs');
     }
-  }, [data, onLoginComplete]);
-
-  if (user) {
-    return <Redirect noThrow to="/songs" />;
-  }
+  }, [data, navigate, onLoginComplete]);
 
   return (
     <Root>
@@ -99,7 +96,11 @@ export default function Login(props) {
               onClick={handleSubmit(handleLoginClick)}
               variant="contained"
             >
-              Log In
+              {isLoggingIn ? (
+                <CircularProgress color="inherit" size={24} />
+              ) : (
+                'Log In'
+              )}
             </Button>
           </Box>
         </Box>
