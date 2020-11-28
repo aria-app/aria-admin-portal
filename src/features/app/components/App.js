@@ -1,9 +1,13 @@
-import { gql, useMutation } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import { Router } from '@reach/router';
 import React from 'react';
 import styled from 'styled-components';
 
 import shared from '../../shared';
+import Login from './Login';
+import NotFound from './NotFound';
+import PrivateRoute from './PrivateRoute';
 import Songs from './Songs';
 
 const { UserProvider } = shared.components;
@@ -21,45 +25,35 @@ const StyledRouter = styled(Router)((props) => ({
   top: 0,
 }));
 
-const LOGIN = gql`
-  mutation Login($email: String!) {
-    login(email: $email) {
-      token
-      user {
-        email
-        firstName
-        id
-        lastName
-      }
+const ME = gql`
+  query Me {
+    me {
+      email
+      firstName
+      id
+      lastName
     }
   }
 `;
 
 export default function App() {
-  const [login, { data }] = useMutation(LOGIN);
-  const [user, setUser] = React.useState(null);
+  const { data, error, loading, refetch } = useQuery(ME);
 
-  React.useEffect(() => {
-    login({
-      variables: {
-        email: process.env.REACT_APP_DEFAULT_EMAIL,
-      },
-    });
-  }, [login]);
-
-  React.useEffect(() => {
-    if (data && data.login) {
-      window.localStorage.setItem('token', data.login.token);
-
-      setUser(data.login.user);
-    }
-  }, [data]);
+  if (error) {
+    return <div>There was an error fetching the current user.</div>;
+  }
 
   return (
-    <UserProvider user={user}>
-      <StyledRouter>
-        <Songs path="/" />
-      </StyledRouter>
+    <UserProvider user={data && data.me}>
+      {loading && <LinearProgress />}
+      {!loading && (
+        <StyledRouter>
+          <Login onLoginComplete={refetch} path="sign-in" />
+          <PrivateRoute component={Songs} path="/" />
+          <PrivateRoute component={Songs} path="songs" />
+          <NotFound path="*" />
+        </StyledRouter>
+      )}
     </UserProvider>
   );
 }

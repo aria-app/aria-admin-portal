@@ -34,15 +34,13 @@ const apolloClient = new ApolloClient({
 const theme = createMuiTheme({});
 
 ReactDOM.render(
-  <React.StrictMode>
-    <ApolloProvider client={apolloClient}>
-      <MuiThemeProvider theme={theme}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <App />
-        </ThemeProvider>
-      </MuiThemeProvider>
-    </ApolloProvider>
-  </React.StrictMode>,
+  <ApolloProvider client={apolloClient}>
+    <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </MuiThemeProvider>
+  </ApolloProvider>,
   document.getElementById('root'),
 );

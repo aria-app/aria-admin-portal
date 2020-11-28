@@ -1,5 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
 import Container from '@material-ui/core/Container';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -7,10 +8,17 @@ import React from 'react';
 import styled from 'styled-components';
 
 import shared from '../../shared';
+import Topbar from './Topbar';
 
 const { useUser } = shared.hooks;
 
-const Root = styled(Container)((props) => ({
+const Root = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+});
+
+const StyledContainer = styled(Container)((props) => ({
   backgroundColor: props.theme.palette.background.paper,
   flex: 1,
 }));
@@ -39,20 +47,30 @@ export default function Songs() {
     console.log('Clicked song', song);
   }, []);
 
-  if (!data || loading) return <p>Loading...</p>;
+  if (!data || loading) return <p>Loading Songs...</p>;
   if (error) {
     return <p>Error :(</p>;
   }
 
   return (
-    <Root disableGutters maxWidth="sm">
-      <List>
-        {data.songs.map((song) => (
-          <ListItem button key={song.id} onClick={() => handleSongClick(song)}>
-            <ListItemText>{song.name}</ListItemText>
-          </ListItem>
-        ))}
-      </List>
+    <Root>
+      <Topbar />
+      {loading && <LinearProgress />}
+      {!loading && (
+        <StyledContainer disableGutters maxWidth="sm">
+          <List>
+            {data.songs.map((song) => (
+              <ListItem
+                button
+                key={song.id}
+                onClick={() => handleSongClick(song)}
+              >
+                <ListItemText>{song.name}</ListItemText>
+              </ListItem>
+            ))}
+          </List>
+        </StyledContainer>
+      )}
     </Root>
   );
 }
