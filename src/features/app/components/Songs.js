@@ -8,7 +8,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import shared from '../../shared';
-import Topbar from './Topbar';
 
 const { useUser } = shared.hooks;
 
@@ -47,14 +46,12 @@ export default function Songs() {
     console.log('Clicked song', song);
   }, []);
 
-  if (!data || loading) return <p>Loading Songs...</p>;
   if (error) {
     return <p>Error :(</p>;
   }
 
   return (
     <Root>
-      <Topbar />
       {loading && <LinearProgress />}
       {!loading && (
         <StyledContainer disableGutters maxWidth="sm">

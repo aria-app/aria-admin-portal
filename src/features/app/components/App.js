@@ -9,10 +9,11 @@ import Login from './Login';
 import NotFound from './NotFound';
 import PrivateRoute from './PrivateRoute';
 import Songs from './Songs';
+import Topbar from './Topbar';
 
 const { UserProvider } = shared.components;
 
-const StyledRouter = styled(Router)((props) => ({
+const Root = styled.div((props) => ({
   backgroundColor: props.theme.palette.background.default,
   bottom: 0,
   display: 'flex',
@@ -24,6 +25,12 @@ const StyledRouter = styled(Router)((props) => ({
   right: 0,
   top: 0,
 }));
+
+const StyledRouter = styled(Router)({
+  display: 'flex',
+  flex: '1 1 auto',
+  flexDirection: 'column',
+});
 
 const ME = gql`
   query Me {
@@ -45,15 +52,18 @@ export default function App() {
 
   return (
     <UserProvider user={data && data.me}>
-      {loading && <LinearProgress />}
-      {!loading && (
-        <StyledRouter>
-          <Login onLoginComplete={refetch} path="sign-in" />
-          <PrivateRoute component={Songs} path="/" />
-          <PrivateRoute component={Songs} path="songs" />
-          <NotFound path="*" />
-        </StyledRouter>
-      )}
+      <Root>
+        <Topbar />
+        {loading && <LinearProgress />}
+        {!loading && (
+          <StyledRouter>
+            <Login onLoginComplete={refetch} path="sign-in" />
+            <PrivateRoute component={Songs} path="/" />
+            <PrivateRoute component={Songs} path="songs" />
+            <NotFound path="*" />
+          </StyledRouter>
+        )}
+      </Root>
     </UserProvider>
   );
 }

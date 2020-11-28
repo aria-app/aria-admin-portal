@@ -11,7 +11,7 @@ export default function PrivateRoute(props) {
   const user = useUser();
 
   if (!user) {
-    return <Redirect from="/foo" noThrow to="/sign-in" />;
+    return <Redirect noThrow to="/sign-in" />;
   }
 
   return <Component {...rest} />;

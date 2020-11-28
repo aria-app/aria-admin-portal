@@ -1,21 +1,30 @@
 import { gql, useMutation } from '@apollo/client';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import { Redirect } from '@reach/router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import styled from 'styled-components';
 import * as yup from 'yup';
 
 import shared from '../../shared';
 
 const { useUser } = shared.hooks;
+
+const Root = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+});
+
+const StyledContainer = styled(Container)((props) => ({
+  backgroundColor: props.theme.palette.background.paper,
+  flex: 1,
+}));
 
 const schema = yup.object().shape({
   email: yup.string().email(),
@@ -66,33 +75,36 @@ export default function Login(props) {
   }
 
   return (
-    <div>
-      <Dialog open>
-        <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To log in and view your songs, enter your email below.
-          </DialogContentText>
-          <Controller
-            as={TextField}
-            autoFocus
-            control={control}
-            defaultValue=""
-            error={!!errors.email}
-            fullWidth
-            helperText={errors.email && errors.email.message}
-            id="email"
-            label="Email Address"
-            name="email"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button color="primary" onClick={handleSubmit(handleLoginClick)}>
-            Log In
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <Root>
+      <StyledContainer maxWidth="sm">
+        <Box paddingY={3}>
+          <div>To log in and view your songs, enter your email below.</div>
+          <Box paddingTop={3}>
+            <Controller
+              as={TextField}
+              autoFocus
+              control={control}
+              defaultValue=""
+              error={!!errors.email}
+              fullWidth
+              helperText={errors.email && errors.email.message}
+              id="email"
+              label="Email Address"
+              name="email"
+            />
+          </Box>
+          <Box display="flex" justifyContent="flex-end" paddingTop={3}>
+            <Button
+              color="primary"
+              onClick={handleSubmit(handleLoginClick)}
+              variant="contained"
+            >
+              Log In
+            </Button>
+          </Box>
+        </Box>
+      </StyledContainer>
+    </Root>
   );
 }
 
