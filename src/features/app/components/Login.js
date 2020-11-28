@@ -45,7 +45,6 @@ export default function Login(props) {
 
   const handleLoginClick = React.useCallback(
     ({ email }) => {
-      console.log('email', email);
       login({
         variables: {
           email,
