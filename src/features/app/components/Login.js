@@ -1,4 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
+import { yupResolver } from '@hookform/resolvers/yup';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -9,10 +10,16 @@ import TextField from '@material-ui/core/TextField';
 import { Redirect } from '@reach/router';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
 import shared from '../../shared';
 
 const { useUser } = shared.hooks;
+
+const schema = yup.object().shape({
+  email: yup.string().email(),
+});
 
 const LOGIN = gql`
   mutation Login($email: String!) {
@@ -30,17 +37,23 @@ const LOGIN = gql`
 
 export default function Login(props) {
   const { onLoginComplete } = props;
+  const { control, errors, handleSubmit } = useForm({
+    resolver: yupResolver(schema),
+  });
   const [login, { data }] = useMutation(LOGIN);
-  const [email, setEmail] = React.useState('');
   const user = useUser();
 
-  const handleLoginClick = React.useCallback(() => {
-    login({
-      variables: {
-        email,
-      },
-    });
-  }, [email, login]);
+  const handleLoginClick = React.useCallback(
+    ({ email }) => {
+      console.log('email', email);
+      login({
+        variables: {
+          email,
+        },
+      });
+    },
+    [login],
+  );
 
   React.useEffect(() => {
     if (data && data.login) {
@@ -61,20 +74,21 @@ export default function Login(props) {
           <DialogContentText>
             To log in and view your songs, enter your email below.
           </DialogContentText>
-          <TextField
+          <Controller
+            as={TextField}
             autoFocus
+            control={control}
+            defaultValue=""
+            error={!!errors.email}
             fullWidth
+            helperText={errors.email && errors.email.message}
             id="email"
             label="Email Address"
-            onChange={(event) => {
-              setEmail(event.target.value);
-            }}
-            type="email"
-            value={email}
+            name="email"
           />
         </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={handleLoginClick}>
+          <Button color="primary" onClick={handleSubmit(handleLoginClick)}>
             Log In
           </Button>
         </DialogActions>
