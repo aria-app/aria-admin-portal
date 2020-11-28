@@ -35,6 +35,7 @@ export default function Songs() {
   });
 
   const handleSongClick = React.useCallback((song) => {
+    // eslint-disable-next-line no-console
     console.log('Clicked song', song);
   }, []);
 
