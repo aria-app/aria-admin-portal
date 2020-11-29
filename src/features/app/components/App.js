@@ -10,6 +10,7 @@ import NotFound from './NotFound';
 import PrivateRoute from './PrivateRoute';
 import Songs from './Songs';
 import Topbar from './Topbar';
+import Users from './Users';
 
 const { UserProvider } = shared.components;
 
@@ -63,6 +64,7 @@ export default function App() {
             <Login onLoginComplete={refetch} path="sign-in" />
             <PrivateRoute component={Songs} path="/" />
             <PrivateRoute component={Songs} path="songs" />
+            <PrivateRoute component={Users} path="users" />
             <NotFound path="*" />
           </StyledRouter>
         )}
