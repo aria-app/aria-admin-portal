@@ -72,7 +72,7 @@ export default function App() {
         <Root>
           <Topbar />
           <Main>
-            <Sidebar />
+            <PrivateRoute component={Sidebar} />
             <Content>
               {loading && <LinearProgress />}
               {!loading && (
