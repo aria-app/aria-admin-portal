@@ -15,6 +15,7 @@ const Root = styled.div({
 
 const StyledContainer = styled(Container)((props) => ({
   backgroundColor: props.theme.palette.background.paper,
+  boxShadow: `-1px 0 0 ${props.theme.palette.divider}, 1px 0 0 ${props.theme.palette.divider}`,
   flex: 1,
 }));
 
@@ -45,7 +46,7 @@ export default function Users() {
   return (
     <Root>
       {loading && <LinearProgress />}
-      <StyledContainer disableGutters maxWidth="sm">
+      <StyledContainer disableGutters maxWidth="md">
         {error && <p>Error :(</p>}
         {!loading && !error && (
           <List>

@@ -5,6 +5,7 @@ import {
   InMemoryCache,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import red from '@material-ui/core/colors/red';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
@@ -31,7 +32,26 @@ const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   link: authLink.concat(httpLink),
 });
-const theme = createMuiTheme({});
+const theme = createMuiTheme({
+  breakpoints: {
+    values: {
+      sm: 480,
+      md: 768,
+    },
+  },
+  palette: {
+    primary: {
+      light: '#9b9bf9',
+      main: '#5944ff',
+      dark: '#2f2a9b',
+    },
+    secondary: red,
+  },
+  typography: {
+    fontFamily: 'Nunito, Helvetica, sans-serif',
+    fontSize: 14,
+  },
+});
 
 ReactDOM.render(
   <ApolloProvider client={apolloClient}>
