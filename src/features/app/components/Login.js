@@ -11,6 +11,10 @@ import { Controller, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
+import shared from '../../shared';
+
+const { useUser } = shared.hooks;
+
 const Root = styled.div({
   display: 'flex',
   flex: 1,
@@ -30,12 +34,6 @@ const LOGIN = gql`
   mutation Login($email: String!) {
     login(email: $email) {
       token
-      user {
-        email
-        firstName
-        id
-        lastName
-      }
     }
   }
 `;
@@ -47,6 +45,7 @@ export default function Login(props) {
   });
   const [login, { data }] = useMutation(LOGIN);
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const user = useUser();
 
   const handleLoginClick = React.useCallback(
     async ({ email }) => {
@@ -70,6 +69,12 @@ export default function Login(props) {
       navigate('/songs');
     }
   }, [data, navigate, onLoginComplete]);
+
+  React.useEffect(() => {
+    if (user) {
+      navigate('/songs');
+    }
+  }, [navigate, user]);
 
   return (
     <Root>
