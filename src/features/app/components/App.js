@@ -38,6 +38,7 @@ const ME = gql`
       email
       firstName
       id
+      isAdmin
       lastName
     }
   }

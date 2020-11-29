@@ -25,9 +25,9 @@ const StyledContainer = styled(Container)((props) => ({
 const GET_SONGS = gql`
   query GetSongs($userId: ID!) {
     songs(userId: $userId) {
-      bpm
       id
       name
+      trackCount
     }
   }
 `;
@@ -46,15 +46,12 @@ export default function Songs() {
     console.log('Clicked song', song);
   }, []);
 
-  if (error) {
-    return <p>Error :(</p>;
-  }
-
   return (
     <Root>
       {loading && <LinearProgress />}
-      {!loading && (
-        <StyledContainer disableGutters maxWidth="sm">
+      <StyledContainer disableGutters maxWidth="sm">
+        {error && <p>Error :(</p>}
+        {!loading && !error && (
           <List>
             {data.songs.map((song) => (
               <ListItem
@@ -62,12 +59,15 @@ export default function Songs() {
                 key={song.id}
                 onClick={() => handleSongClick(song)}
               >
-                <ListItemText>{song.name}</ListItemText>
+                <ListItemText
+                  primary={song.name}
+                  secondary={`Tracks: ${song.trackCount}`}
+                />
               </ListItem>
             ))}
           </List>
-        </StyledContainer>
-      )}
+        )}
+      </StyledContainer>
     </Root>
   );
 }

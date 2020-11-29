@@ -14,10 +14,7 @@ const { useUser } = shared.hooks;
 const ME = gql`
   query Me {
     me {
-      email
-      firstName
       id
-      lastName
     }
   }
 `;
