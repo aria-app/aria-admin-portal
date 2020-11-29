@@ -4,6 +4,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import formatDistance from 'date-fns/formatDistance';
+import parseISO from 'date-fns/parseISO';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -26,6 +28,7 @@ const StyledContainer = styled(Container)((props) => ({
 const GET_SONGS = gql`
   query GetSongs($userId: ID!) {
     songs(userId: $userId) {
+      dateModified
       id
       name
       trackCount
@@ -61,7 +64,11 @@ export default function Songs() {
                 onClick={() => handleSongClick(song)}
               >
                 <ListItemText
-                  primary={song.name}
+                  primary={`${song.name} (${formatDistance(
+                    parseISO(song.dateModified),
+                    new Date(),
+                    { addSuffix: true },
+                  )})`}
                   secondary={`Tracks: ${song.trackCount}`}
                 />
               </ListItem>
