@@ -64,7 +64,8 @@ export default function Songs() {
   const user = useUser();
   const [createSong] = useMutation(CREATE_SONG);
   const navigate = useNavigate();
-  const { data, error, loading, refetch } = useQuery(GET_SONGS, {
+  const { data, error, loading } = useQuery(GET_SONGS, {
+    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
     skip: !user,
     variables: {
@@ -85,7 +86,7 @@ export default function Songs() {
   const handleAddSave = React.useCallback(
     async (options) => {
       try {
-        await createSong({
+        const result = await createSong({
           variables: {
             options,
           },
@@ -95,14 +96,14 @@ export default function Songs() {
         });
 
         setIsAddOpen(false);
-        refetch();
+        navigate(`/song/${result.data.createSong.song.id}`);
       } catch (e) {
         enqueueSnackbar('The song could not be created.', {
           variant: 'error',
         });
       }
     },
-    [createSong, enqueueSnackbar, refetch],
+    [createSong, enqueueSnackbar, navigate],
   );
 
   const handleSongClick = React.useCallback(

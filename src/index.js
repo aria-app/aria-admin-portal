@@ -1,10 +1,4 @@
-import {
-  ApolloClient,
-  ApolloProvider,
-  createHttpLink,
-  InMemoryCache,
-} from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloProvider } from '@apollo/client';
 import red from '@material-ui/core/colors/red';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
@@ -13,26 +7,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from 'styled-components';
 
+import apolloClient from './apolloClient';
 import app from './features/app';
 
 const { App } = app.components;
-
-const httpLink = createHttpLink({ uri: process.env.REACT_APP_API_URI });
-const authLink = setContext((_, { headers }) => {
-  const token = window.localStorage.getItem('token');
-
-  return {
-    headers: {
-      ...headers,
-      authorization: token || '',
-    },
-  };
-});
-
-const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: authLink.concat(httpLink),
-});
 const theme = createMuiTheme({
   breakpoints: {
     values: {

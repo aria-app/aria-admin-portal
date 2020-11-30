@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,16 +11,8 @@ import shared from '../../shared';
 
 const { useUser } = shared.hooks;
 
-const ME = gql`
-  query Me {
-    me {
-      id
-    }
-  }
-`;
-
 export default function Topbar() {
-  const { client } = useQuery(ME);
+  const client = useApolloClient();
   const user = useUser();
 
   const handleLogOutClick = React.useCallback(() => {
