@@ -8,6 +8,7 @@ import { setContext } from '@apollo/client/link/context';
 import red from '@material-ui/core/colors/red';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { SnackbarProvider } from 'notistack';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from 'styled-components';
@@ -49,7 +50,6 @@ const theme = createMuiTheme({
   },
   typography: {
     fontFamily: 'Nunito, Helvetica, sans-serif',
-    fontSize: 14,
   },
 });
 
@@ -57,8 +57,10 @@ ReactDOM.render(
   <ApolloProvider client={apolloClient}>
     <MuiThemeProvider theme={theme}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <App />
+        <SnackbarProvider maxSnack={1}>
+          <CssBaseline />
+          <App />
+        </SnackbarProvider>
       </ThemeProvider>
     </MuiThemeProvider>
   </ApolloProvider>,
