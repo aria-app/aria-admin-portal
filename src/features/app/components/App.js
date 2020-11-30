@@ -5,15 +5,16 @@ import React from 'react';
 import styled from 'styled-components';
 
 import shared from '../../shared';
+import songs from '../../songs';
 import Login from './Login';
 import NotFound from './NotFound';
 import PrivateRoute from './PrivateRoute';
 import Sidebar from './Sidebar';
-import Songs from './Songs';
 import Topbar from './Topbar';
 import Users from './Users';
 
 const { UserProvider } = shared.components;
+const { Song, Songs } = songs.components;
 
 const Root = styled.div((props) => ({
   backgroundColor: props.theme.palette.background.default,
@@ -80,6 +81,7 @@ export default function App() {
                   <Login onLoginComplete={refetch} path="sign-in" />
                   <PrivateRoute component={Songs} path="/" />
                   <PrivateRoute component={Songs} path="songs" />
+                  <PrivateRoute component={Song} path="song/:id" />
                   <PrivateRoute component={Users} path="users" />
                   <NotFound path="*" />
                 </StyledRouter>

@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Container from '@material-ui/core/Container';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -6,7 +7,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
+import { useNavigate } from '@reach/router';
 import formatDistance from 'date-fns/formatDistance';
 import parseISO from 'date-fns/parseISO';
 import { useSnackbar } from 'notistack';
@@ -60,6 +63,7 @@ const GET_SONGS = gql`
 export default function Songs() {
   const user = useUser();
   const [createSong] = useMutation(CREATE_SONG);
+  const navigate = useNavigate();
   const { data, error, loading, refetch } = useQuery(GET_SONGS, {
     notifyOnNetworkStatusChange: true,
     skip: !user,
@@ -101,10 +105,12 @@ export default function Songs() {
     [createSong, enqueueSnackbar, refetch],
   );
 
-  const handleSongClick = React.useCallback((song) => {
-    // eslint-disable-next-line no-console
-    console.log('Clicked song', song);
-  }, []);
+  const handleSongClick = React.useCallback(
+    (song) => {
+      navigate(`/song/${song.id}`);
+    },
+    [navigate],
+  );
 
   return (
     <Root>
@@ -114,6 +120,9 @@ export default function Songs() {
         {!loading && !error && (
           <React.Fragment>
             <StyledToolbar>
+              <Breadcrumbs aria-label="breadcrumb">
+                <Typography color="textPrimary">Songs</Typography>
+              </Breadcrumbs>
               <IconButton
                 edge="end"
                 onClick={handleAddButtonClick}
