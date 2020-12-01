@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
+import Box from '@material-ui/core/Box';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Container from '@material-ui/core/Container';
 import IconButton from '@material-ui/core/IconButton';
@@ -6,6 +7,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
@@ -15,6 +18,7 @@ import parseISO from 'date-fns/parseISO';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
+import { StringParam, useQueryParam, withDefault } from 'use-query-params';
 
 import shared from '../../shared';
 import SongsAdd from './SongsAdd';
@@ -50,8 +54,8 @@ const CREATE_SONG = gql`
 `;
 
 const GET_SONGS = gql`
-  query GetSongs($userId: ID!) {
-    songs(userId: $userId) {
+  query GetSongs($sort: String, $sortDirection: String, $userId: ID!) {
+    songs(sort: $sort, sortDirection: $sortDirection, userId: $userId) {
       dateModified
       id
       name
@@ -62,6 +66,14 @@ const GET_SONGS = gql`
 
 export default function Songs() {
   const user = useUser();
+  const [sort, setSort] = useQueryParam(
+    'sort',
+    withDefault(StringParam, 'name'),
+  );
+  const [sortDirection, setSortDirection] = useQueryParam(
+    'sortDirection',
+    withDefault(StringParam, 'asc'),
+  );
   const [createSong] = useMutation(CREATE_SONG);
   const navigate = useNavigate();
   const { data, error, loading } = useQuery(GET_SONGS, {
@@ -69,6 +81,8 @@ export default function Songs() {
     notifyOnNetworkStatusChange: true,
     skip: !user,
     variables: {
+      sort,
+      sortDirection,
       userId: user && user.id,
     },
   });
@@ -121,14 +135,26 @@ export default function Songs() {
         {!loading && !error && (
           <React.Fragment>
             <StyledToolbar>
-              <Breadcrumbs aria-label="breadcrumb">
-                <Typography color="textPrimary">Songs</Typography>
-              </Breadcrumbs>
-              <IconButton
-                edge="end"
-                onClick={handleAddButtonClick}
-                style={{ marginLeft: 'auto' }}
-              >
+              <Box flex={1}>
+                <Breadcrumbs aria-label="breadcrumb">
+                  <Typography color="textPrimary">Songs</Typography>
+                </Breadcrumbs>
+              </Box>
+              <Select onChange={(e) => setSort(e.target.value)} value={sort}>
+                <MenuItem value="dateModified">Date Modified</MenuItem>
+                <MenuItem value="name">Name</MenuItem>
+                <MenuItem value="trackCount">Track Count</MenuItem>
+              </Select>
+              <Box paddingLeft={2}>
+                <Select
+                  onChange={(e) => setSortDirection(e.target.value)}
+                  value={sortDirection}
+                >
+                  <MenuItem value="asc">Ascending</MenuItem>
+                  <MenuItem value="desc">Descending</MenuItem>
+                </Select>
+              </Box>
+              <IconButton edge="end" onClick={handleAddButtonClick}>
                 <AddIcon color="inherit" />
               </IconButton>
             </StyledToolbar>

@@ -1,6 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { LocationProvider, Router } from '@reach/router';
+import { Router } from '@reach/router';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -69,27 +70,26 @@ export default function App() {
 
   return (
     <UserProvider user={data && data.me}>
-      <LocationProvider>
-        <Root>
-          <Topbar />
-          <Main>
-            {!loading && <PrivateRoute component={Sidebar} />}
-            <Content>
-              {loading && <LinearProgress />}
-              {!loading && (
-                <StyledRouter>
-                  <Login onLoginComplete={refetch} path="sign-in" />
-                  <PrivateRoute component={Songs} path="/" />
-                  <PrivateRoute component={Songs} path="songs" />
-                  <PrivateRoute component={Song} path="song/:id" />
-                  <PrivateRoute component={Users} path="users" />
-                  <NotFound path="*" />
-                </StyledRouter>
-              )}
-            </Content>
-          </Main>
-        </Root>
-      </LocationProvider>
+      <Root default>
+        <CssBaseline />
+        <Topbar />
+        <Main>
+          {!loading && <PrivateRoute component={Sidebar} />}
+          <Content>
+            {loading && <LinearProgress />}
+            {!loading && (
+              <StyledRouter>
+                <Login onLoginComplete={refetch} path="sign-in" />
+                <PrivateRoute component={Songs} path="/" />
+                <PrivateRoute component={Songs} path="songs" />
+                <PrivateRoute component={Song} path="song/:id" />
+                <PrivateRoute component={Users} path="users" />
+                <NotFound path="*" />
+              </StyledRouter>
+            )}
+          </Content>
+        </Main>
+      </Root>
     </UserProvider>
   );
 }

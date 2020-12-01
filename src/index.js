@@ -1,11 +1,12 @@
 import { ApolloProvider } from '@apollo/client';
 import red from '@material-ui/core/colors/red';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { globalHistory, LocationProvider, Router } from '@reach/router';
 import { SnackbarProvider } from 'notistack';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from 'styled-components';
+import { QueryParamProvider } from 'use-query-params';
 
 import apolloClient from './apolloClient';
 import app from './features/app';
@@ -36,8 +37,13 @@ ReactDOM.render(
     <MuiThemeProvider theme={theme}>
       <ThemeProvider theme={theme}>
         <SnackbarProvider maxSnack={1}>
-          <CssBaseline />
-          <App />
+          <LocationProvider>
+            <Router>
+              <QueryParamProvider path="/" reachHistory={globalHistory}>
+                <App default />
+              </QueryParamProvider>
+            </Router>
+          </LocationProvider>
         </SnackbarProvider>
       </ThemeProvider>
     </MuiThemeProvider>
