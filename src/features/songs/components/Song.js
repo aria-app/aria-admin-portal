@@ -10,6 +10,7 @@ import Link from '@material-ui/core/Link';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import { Link as ReachLink, useNavigate } from '@reach/router';
 import formatDistance from 'date-fns/formatDistance';
 import parseISO from 'date-fns/parseISO';
@@ -18,6 +19,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import SongDelete from './SongDelete';
+import SongEdit from './SongEdit';
 
 const Root = styled.div({
   display: 'flex',
@@ -56,9 +58,25 @@ const GET_SONG = gql`
   }
 `;
 
+const UPDATE_SONG = gql`
+  mutation UpdateSong($id: ID!, $updates: UpdateSongInput!) {
+    updateSong(id: $id, updates: $updates) {
+      song {
+        bpm
+        dateModified
+        id
+        measureCount
+        name
+      }
+      success
+    }
+  }
+`;
+
 export default function Song(props) {
   const { id } = props;
   const [deleteSong] = useMutation(DELETE_SONG);
+  const [updateSong, { loading: updateSongLoading }] = useMutation(UPDATE_SONG);
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { data, error, loading } = useQuery(GET_SONG, {
@@ -68,6 +86,7 @@ export default function Song(props) {
     },
   });
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
 
   const handleDeleteButtonClick = React.useCallback(() => {
     setIsDeleteOpen(true);
@@ -97,6 +116,47 @@ export default function Song(props) {
     }
   }, [data, deleteSong, enqueueSnackbar, navigate]);
 
+  const handleEditButtonClick = React.useCallback(() => {
+    setIsEditOpen(true);
+  }, []);
+
+  const handleEditCancel = React.useCallback(() => {
+    setIsEditOpen(false);
+  }, []);
+
+  const handleEditSave = React.useCallback(
+    async (updates) => {
+      try {
+        if (
+          updates.bpm === data.song.bpm &&
+          updates.measureCount === data.song.measureCount &&
+          updates.name === data.song.name
+        ) {
+          enqueueSnackbar('No changes.');
+          setIsEditOpen(false);
+          return;
+        }
+
+        await updateSong({
+          variables: {
+            id: data.song.id,
+            updates,
+          },
+        });
+
+        enqueueSnackbar('The song was updated.', {
+          variant: 'success',
+        });
+        setIsEditOpen(false);
+      } catch (e) {
+        enqueueSnackbar('The song could not be updated.', {
+          variant: 'error',
+        });
+      }
+    },
+    [data, enqueueSnackbar, updateSong],
+  );
+
   return (
     <Root>
       {loading && <LinearProgress />}
@@ -113,6 +173,9 @@ export default function Song(props) {
                   <Typography color="textPrimary">{data.song.name}</Typography>
                 </Breadcrumbs>
               </Box>
+              <IconButton edge="end" onClick={handleEditButtonClick}>
+                <EditIcon color="inherit" />
+              </IconButton>
               <IconButton edge="end" onClick={handleDeleteButtonClick}>
                 <DeleteIcon color="inherit" />
               </IconButton>
@@ -155,6 +218,13 @@ export default function Song(props) {
               isOpen={isDeleteOpen}
               onCancel={handleDeleteCancel}
               onDelete={handleDeleteDelete}
+              song={data.song}
+            />
+            <SongEdit
+              isOpen={isEditOpen}
+              isSaving={updateSongLoading}
+              onCancel={handleEditCancel}
+              onSave={handleEditSave}
               song={data.song}
             />
           </React.Fragment>
