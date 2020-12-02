@@ -18,11 +18,17 @@ import parseISO from 'date-fns/parseISO';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
-import { StringParam, useQueryParam, withDefault } from 'use-query-params';
+import {
+  NumberParam,
+  StringParam,
+  useQueryParams,
+  withDefault,
+} from 'use-query-params';
 
 import shared from '../../shared';
 import SongsAdd from './SongsAdd';
 
+const { Pagination } = shared.components;
 const { useUser } = shared.hooks;
 
 const Root = styled.div({
@@ -39,7 +45,8 @@ const StyledContainer = styled(Container)((props) => ({
 
 const StyledToolbar = styled(Toolbar)((props) => ({
   borderBottom: `1px solid ${props.theme.palette.divider}`,
-  flex: 1,
+  borderTop: `1px solid ${props.theme.palette.divider}`,
+  flex: 0,
 }));
 
 const CREATE_SONG = gql`
@@ -54,26 +61,42 @@ const CREATE_SONG = gql`
 `;
 
 const GET_SONGS = gql`
-  query GetSongs($sort: String, $sortDirection: String, $userId: ID!) {
-    songs(sort: $sort, sortDirection: $sortDirection, userId: $userId) {
-      dateModified
-      id
-      name
-      trackCount
+  query GetSongs(
+    $limit: Int
+    $page: Int
+    $sort: String
+    $sortDirection: String
+    $userId: ID!
+  ) {
+    songs(
+      limit: $limit
+      page: $page
+      sort: $sort
+      sortDirection: $sortDirection
+      userId: $userId
+    ) {
+      data {
+        dateModified
+        id
+        name
+        trackCount
+      }
+      meta {
+        currentPage
+        itemsPerPage
+        totalItemCount
+      }
     }
   }
 `;
 
 export default function Songs() {
   const user = useUser();
-  const [sort, setSort] = useQueryParam(
-    'sort',
-    withDefault(StringParam, 'name'),
-  );
-  const [sortDirection, setSortDirection] = useQueryParam(
-    'sortDirection',
-    withDefault(StringParam, 'asc'),
-  );
+  const [queryParams, setQueryParams] = useQueryParams({
+    page: withDefault(NumberParam, 1),
+    sort: withDefault(StringParam, 'name'),
+    sortDirection: withDefault(StringParam, 'asc'),
+  });
   const [createSong] = useMutation(CREATE_SONG);
   const navigate = useNavigate();
   const { data, error, loading } = useQuery(GET_SONGS, {
@@ -81,8 +104,8 @@ export default function Songs() {
     notifyOnNetworkStatusChange: true,
     skip: !user,
     variables: {
-      sort,
-      sortDirection,
+      ...queryParams,
+      limit: 5,
       userId: user && user.id,
     },
   });
@@ -127,57 +150,85 @@ export default function Songs() {
     [navigate],
   );
 
+  const handlePageChange = React.useCallback(
+    (page) => {
+      setQueryParams({ page }, 'replace-in');
+    },
+    [setQueryParams],
+  );
+
+  const handleSortChange = React.useCallback(
+    (e) => {
+      setQueryParams({ page: 1, sort: e.target.value }, 'replace-in');
+    },
+    [setQueryParams],
+  );
+
+  const handleSortDirectionChange = React.useCallback(
+    (e) => {
+      setQueryParams({ page: 1, sortDirection: e.target.value }, 'replace-in');
+    },
+    [setQueryParams],
+  );
+
   return (
     <Root>
-      {loading && <LinearProgress />}
       <StyledContainer disableGutters maxWidth="md">
-        {error && <p>Error :(</p>}
-        {!loading && !error && (
-          <React.Fragment>
-            <StyledToolbar>
-              <Box flex={1}>
-                <Breadcrumbs aria-label="breadcrumb">
-                  <Typography color="textPrimary">Songs</Typography>
-                </Breadcrumbs>
-              </Box>
-              <Select onChange={(e) => setSort(e.target.value)} value={sort}>
-                <MenuItem value="dateModified">Date Modified</MenuItem>
-                <MenuItem value="name">Name</MenuItem>
-                <MenuItem value="trackCount">Track Count</MenuItem>
+        <Box display="flex" flex={1} flexDirection="column" height="100%">
+          <StyledToolbar>
+            <Box flex={1}>
+              <Breadcrumbs aria-label="breadcrumb">
+                <Typography color="textPrimary">Songs</Typography>
+              </Breadcrumbs>
+            </Box>
+            <Select onChange={handleSortChange} value={queryParams.sort}>
+              <MenuItem value="dateModified">Date Modified</MenuItem>
+              <MenuItem value="name">Name</MenuItem>
+            </Select>
+            <Box paddingLeft={2}>
+              <Select
+                onChange={handleSortDirectionChange}
+                value={queryParams.sortDirection}
+              >
+                <MenuItem value="asc">Ascending</MenuItem>
+                <MenuItem value="desc">Descending</MenuItem>
               </Select>
-              <Box paddingLeft={2}>
-                <Select
-                  onChange={(e) => setSortDirection(e.target.value)}
-                  value={sortDirection}
-                >
-                  <MenuItem value="asc">Ascending</MenuItem>
-                  <MenuItem value="desc">Descending</MenuItem>
-                </Select>
-              </Box>
-              <IconButton edge="end" onClick={handleAddButtonClick}>
-                <AddIcon color="inherit" />
-              </IconButton>
-            </StyledToolbar>
-            <List>
-              {data.songs.map((song) => (
-                <ListItem
-                  button
-                  key={song.id}
-                  onClick={() => handleSongClick(song)}
-                >
-                  <ListItemText
-                    primary={`${song.name} (${formatDistance(
-                      parseISO(song.dateModified),
-                      new Date(),
-                      { addSuffix: true },
-                    )})`}
-                    secondary={`Tracks: ${song.trackCount}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </React.Fragment>
-        )}
+            </Box>
+            <IconButton edge="end" onClick={handleAddButtonClick}>
+              <AddIcon color="inherit" />
+            </IconButton>
+          </StyledToolbar>
+          <Box flex={1}>
+            {loading && <LinearProgress />}
+            {error && <p>Error :(</p>}
+            {!loading && !error && (
+              <List>
+                {data.songs.data.map((song) => (
+                  <ListItem
+                    button
+                    key={song.id}
+                    onClick={() => handleSongClick(song)}
+                  >
+                    <ListItemText
+                      primary={`${song.name} (${formatDistance(
+                        parseISO(song.dateModified),
+                        new Date(),
+                        { addSuffix: true },
+                      )})`}
+                      secondary={`Tracks: ${song.trackCount}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Box>
+          <StyledToolbar>
+            <Pagination
+              {...(data && data.songs.meta)}
+              onCurrentPageChange={handlePageChange}
+            />
+          </StyledToolbar>
+        </Box>
       </StyledContainer>
       <SongsAdd
         isOpen={isAddOpen}
