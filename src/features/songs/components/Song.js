@@ -173,7 +173,7 @@ export default function Song(props) {
                   <Typography color="textPrimary">{data.song.name}</Typography>
                 </Breadcrumbs>
               </Box>
-              <IconButton edge="end" onClick={handleEditButtonClick}>
+              <IconButton onClick={handleEditButtonClick}>
                 <EditIcon color="inherit" />
               </IconButton>
               <IconButton edge="end" onClick={handleDeleteButtonClick}>

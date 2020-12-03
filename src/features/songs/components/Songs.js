@@ -1,6 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import Box from '@material-ui/core/Box';
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Container from '@material-ui/core/Container';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -9,12 +8,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import { useNavigate } from '@reach/router';
 import formatDistance from 'date-fns/formatDistance';
 import parseISO from 'date-fns/parseISO';
+import debounce from 'lodash/fp/debounce';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
@@ -64,6 +64,7 @@ const GET_SONGS = gql`
   query GetSongs(
     $limit: Int
     $page: Int
+    $search: String
     $sort: String
     $sortDirection: String
     $userId: ID!
@@ -71,6 +72,7 @@ const GET_SONGS = gql`
     songs(
       limit: $limit
       page: $page
+      search: $search
       sort: $sort
       sortDirection: $sortDirection
       userId: $userId
@@ -94,6 +96,7 @@ export default function Songs() {
   const user = useUser();
   const [queryParams, setQueryParams] = useQueryParams({
     page: withDefault(NumberParam, 1),
+    search: StringParam,
     sort: withDefault(StringParam, 'name'),
     sortDirection: withDefault(StringParam, 'asc'),
   });
@@ -157,6 +160,14 @@ export default function Songs() {
     [setQueryParams],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleSearchChange = React.useCallback(
+    debounce(500, (e) => {
+      setQueryParams({ search: e.target.value || undefined }, 'replace-in');
+    }),
+    [setQueryParams],
+  );
+
   const handleSortChange = React.useCallback(
     (e) => {
       setQueryParams({ page: 1, sort: e.target.value }, 'replace-in');
@@ -177,15 +188,20 @@ export default function Songs() {
         <Box display="flex" flex={1} flexDirection="column" height="100%">
           <StyledToolbar>
             <Box flex={1}>
-              <Breadcrumbs aria-label="breadcrumb">
-                <Typography color="textPrimary">Songs</Typography>
-              </Breadcrumbs>
+              <TextField
+                defaultValue={queryParams.search}
+                fullWidth
+                onChange={handleSearchChange}
+                placeholder="Search"
+              />
             </Box>
-            <Select onChange={handleSortChange} value={queryParams.sort}>
-              <MenuItem value="dateModified">Date Modified</MenuItem>
-              <MenuItem value="name">Name</MenuItem>
-            </Select>
-            <Box paddingLeft={2}>
+            <Box paddingLeft={3}>
+              <Select onChange={handleSortChange} value={queryParams.sort}>
+                <MenuItem value="dateModified">Date Modified</MenuItem>
+                <MenuItem value="name">Name</MenuItem>
+              </Select>
+            </Box>
+            <Box paddingLeft={3}>
               <Select
                 onChange={handleSortDirectionChange}
                 value={queryParams.sortDirection}
@@ -223,10 +239,12 @@ export default function Songs() {
             )}
           </Box>
           <StyledToolbar>
-            <Pagination
-              {...(data && data.songs.meta)}
-              onCurrentPageChange={handlePageChange}
-            />
+            <Box marginLeft={-1}>
+              <Pagination
+                {...(data && data.songs.meta)}
+                onCurrentPageChange={handlePageChange}
+              />
+            </Box>
           </StyledToolbar>
         </Box>
       </StyledContainer>
