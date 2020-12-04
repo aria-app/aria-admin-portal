@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import Box from '@material-ui/core/Box';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Container from '@material-ui/core/Container';
@@ -18,6 +18,7 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
 
+import * as documentNodes from '../documentNodes';
 import SongDelete from './SongDelete';
 import SongEdit from './SongEdit';
 
@@ -38,48 +39,15 @@ const StyledToolbar = styled(Toolbar)((props) => ({
   flex: 1,
 }));
 
-const DELETE_SONG = gql`
-  mutation DeleteSong($id: ID!) {
-    deleteSong(id: $id) {
-      success
-    }
-  }
-`;
-
-const GET_SONG = gql`
-  query GetSong($id: ID!) {
-    song(id: $id) {
-      bpm
-      dateModified
-      id
-      measureCount
-      name
-    }
-  }
-`;
-
-const UPDATE_SONG = gql`
-  mutation UpdateSong($id: ID!, $updates: UpdateSongInput!) {
-    updateSong(id: $id, updates: $updates) {
-      song {
-        bpm
-        dateModified
-        id
-        measureCount
-        name
-      }
-      success
-    }
-  }
-`;
-
 export default function Song(props) {
   const { id } = props;
-  const [deleteSong] = useMutation(DELETE_SONG);
-  const [updateSong, { loading: updateSongLoading }] = useMutation(UPDATE_SONG);
+  const [deleteSong] = useMutation(documentNodes.DELETE_SONG);
+  const [updateSong, { loading: updateSongLoading }] = useMutation(
+    documentNodes.UPDATE_SONG,
+  );
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { data, error, loading } = useQuery(GET_SONG, {
+  const { data, error, loading } = useQuery(documentNodes.GET_SONG, {
     notifyOnNetworkStatusChange: true,
     variables: {
       id,

@@ -1,4 +1,9 @@
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
+import {
+  ApolloClient,
+  createHttpLink,
+  gql,
+  InMemoryCache,
+} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
 const cache = new InMemoryCache({
@@ -26,4 +31,14 @@ const authLink = setContext((_, { headers }) => {
 export default new ApolloClient({
   cache,
   link: authLink.concat(httpLink),
+  resolvers: {
+    Song: {
+      description: () => 'A really nifty description of the song.',
+    },
+  },
+  typeDefs: gql`
+    extend type Song {
+      description: String
+    }
+  `,
 });
