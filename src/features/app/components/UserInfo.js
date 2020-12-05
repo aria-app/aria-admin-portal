@@ -1,7 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
+import Typography from '@material-ui/core/Typography';
 import React from 'react';
-
-import UserContext from '../contexts/UserContext';
 
 const ME = gql`
   query Me {
@@ -15,9 +14,8 @@ const ME = gql`
   }
 `;
 
-export default function UserProvider(props) {
+export default function UserInfo() {
   const { data } = useQuery(ME);
-  console.log('data', data);
 
-  return <UserContext.Provider value={data ? data.me : null} {...props} />;
+  return <Typography>{data && data.user}</Typography>;
 }

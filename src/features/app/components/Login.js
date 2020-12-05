@@ -1,19 +1,11 @@
-import { gql, useMutation } from '@apollo/client';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useAuth0 } from '@auth0/auth0-react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
-import TextField from '@material-ui/core/TextField';
-import PropTypes from 'prop-types';
+import { Redirect } from '@reach/router';
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import styled from 'styled-components';
-import * as yup from 'yup';
-
-import shared from '../../shared';
-
-const { useUser } = shared.hooks;
 
 const Root = styled.div({
   display: 'flex',
@@ -26,82 +18,25 @@ const StyledContainer = styled(Container)((props) => ({
   flex: 1,
 }));
 
-const schema = yup.object().shape({
-  email: yup.string().email(),
-});
+export default function Login() {
+  const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
 
-const LOGIN = gql`
-  mutation Login($email: String!) {
-    login(email: $email) {
-      token
-    }
+  if (isAuthenticated) {
+    return <Redirect noThrow to="/songs" />;
   }
-`;
-
-export default function Login(props) {
-  const { navigate, onLoginComplete } = props;
-  const { control, errors, handleSubmit } = useForm({
-    resolver: yupResolver(schema),
-  });
-  const [login, { data }] = useMutation(LOGIN);
-  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
-  const user = useUser();
-
-  const handleLoginClick = React.useCallback(
-    async ({ email }) => {
-      setIsLoggingIn(true);
-
-      await login({
-        variables: {
-          email,
-        },
-      });
-
-      setIsLoggingIn(false);
-    },
-    [login],
-  );
-
-  React.useEffect(() => {
-    if (data && data.login) {
-      window.localStorage.setItem('token', data.login.token);
-      onLoginComplete();
-      navigate('/songs');
-    }
-  }, [data, navigate, onLoginComplete]);
-
-  React.useEffect(() => {
-    if (user) {
-      navigate('/songs');
-    }
-  }, [navigate, user]);
 
   return (
     <Root>
       <StyledContainer maxWidth="sm">
         <Box paddingY={3}>
-          <div>To log in and view your songs, enter your email below.</div>
-          <Box paddingTop={3}>
-            <Controller
-              as={TextField}
-              autoFocus
-              control={control}
-              defaultValue=""
-              error={!!errors.email}
-              fullWidth
-              helperText={errors.email && errors.email.message}
-              id="email"
-              label="Email Address"
-              name="email"
-            />
-          </Box>
+          <div>Log in to view and manage songs and data.</div>
           <Box display="flex" justifyContent="flex-end" paddingTop={3}>
             <Button
               color="primary"
-              onClick={handleSubmit(handleLoginClick)}
+              onClick={loginWithRedirect}
               variant="contained"
             >
-              {isLoggingIn ? (
+              {isLoading ? (
                 <CircularProgress color="inherit" size={24} />
               ) : (
                 'Log In'
@@ -113,7 +48,3 @@ export default function Login(props) {
     </Root>
   );
 }
-
-Login.propTypes = {
-  onLoginComplete: PropTypes.func.isRequired,
-};

@@ -1,4 +1,4 @@
-import { ApolloProvider } from '@apollo/client';
+import { Auth0Provider } from '@auth0/auth0-react';
 import red from '@material-ui/core/colors/red';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { globalHistory, LocationProvider, Router } from '@reach/router';
@@ -8,10 +8,13 @@ import ReactDOM from 'react-dom';
 import { ThemeProvider } from 'styled-components';
 import { QueryParamProvider } from 'use-query-params';
 
-import apolloClient from './apolloClient';
+import ApolloWrapper from './ApolloWrapper';
 import app from './features/app';
+import shared from './features/shared';
 
 const { App } = app.components;
+const { UserProvider } = shared.components;
+
 const theme = createMuiTheme({
   breakpoints: {
     values: {
@@ -33,20 +36,29 @@ const theme = createMuiTheme({
 });
 
 ReactDOM.render(
-  <ApolloProvider client={apolloClient}>
-    <MuiThemeProvider theme={theme}>
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={1}>
-          <LocationProvider>
-            <Router>
-              <QueryParamProvider path="/" reachHistory={globalHistory}>
-                <App default />
-              </QueryParamProvider>
-            </Router>
-          </LocationProvider>
-        </SnackbarProvider>
-      </ThemeProvider>
-    </MuiThemeProvider>
-  </ApolloProvider>,
+  <Auth0Provider
+    audience={process.env.REACT_APP_AUTH_AUDIENCE}
+    clientId={process.env.REACT_APP_AUTH_CLIENT_ID}
+    domain={process.env.REACT_APP_AUTH_DOMAIN}
+    redirectUri={window.location.origin}
+  >
+    <ApolloWrapper>
+      <UserProvider>
+        <MuiThemeProvider theme={theme}>
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider maxSnack={1}>
+              <LocationProvider>
+                <Router>
+                  <QueryParamProvider path="/" reachHistory={globalHistory}>
+                    <App default />
+                  </QueryParamProvider>
+                </Router>
+              </LocationProvider>
+            </SnackbarProvider>
+          </ThemeProvider>
+        </MuiThemeProvider>
+      </UserProvider>
+    </ApolloWrapper>
+  </Auth0Provider>,
   document.getElementById('root'),
 );

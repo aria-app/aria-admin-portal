@@ -36,7 +36,7 @@ export default function Sidebar() {
         <ListItem
           button
           onClick={() => handleItemClick('/songs')}
-          selected={pathname === '/songs'}
+          selected={pathname === '/songs' || pathname === '/'}
         >
           <ListItemIcon>
             <LibraryMusicIcon color="inherit" />

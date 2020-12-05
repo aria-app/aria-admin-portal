@@ -1,11 +1,10 @@
-import { gql, useQuery } from '@apollo/client';
+// import { gql } from '@apollo/client';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Router } from '@reach/router';
 import React from 'react';
 import styled from 'styled-components';
 
-import shared from '../../shared';
 import songs from '../../songs';
 import Login from './Login';
 import NotFound from './NotFound';
@@ -14,7 +13,6 @@ import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import Users from './Users';
 
-const { UserProvider } = shared.components;
 const { Song, Songs } = songs.components;
 
 const Root = styled.div((props) => ({
@@ -47,49 +45,29 @@ const StyledRouter = styled(Router)({
   flexDirection: 'column',
 });
 
-const ME = gql`
-  query Me {
-    me {
-      email
-      firstName
-      id
-      isAdmin
-      lastName
-    }
-  }
-`;
-
 export default function App() {
-  const { data, error, loading, refetch } = useQuery(ME, {
-    notifyOnNetworkStatusChange: true,
-  });
-
-  if (error) {
-    return <div>There was an error fetching the current user.</div>;
-  }
+  const loading = false;
 
   return (
-    <UserProvider user={data && data.me}>
-      <Root default>
-        <CssBaseline />
-        <Topbar />
-        <Main>
-          {!loading && <PrivateRoute component={Sidebar} />}
-          <Content>
-            {loading && <LinearProgress />}
-            {!loading && (
-              <StyledRouter>
-                <Login onLoginComplete={refetch} path="sign-in" />
-                <PrivateRoute component={Songs} path="/" />
-                <PrivateRoute component={Songs} path="songs" />
-                <PrivateRoute component={Song} path="song/:id" />
-                <PrivateRoute component={Users} path="users" />
-                <NotFound path="*" />
-              </StyledRouter>
-            )}
-          </Content>
-        </Main>
-      </Root>
-    </UserProvider>
+    <Root default>
+      <CssBaseline />
+      <Topbar />
+      <Main>
+        {!loading && <PrivateRoute component={Sidebar} />}
+        <Content>
+          {loading && <LinearProgress />}
+          {!loading && (
+            <StyledRouter>
+              <Login path="sign-in" />
+              <PrivateRoute component={Songs} path="/" />
+              <PrivateRoute component={Songs} path="songs" />
+              <PrivateRoute component={Song} path="song/:id" />
+              <PrivateRoute component={Users} path="users" />
+              <NotFound path="*" />
+            </StyledRouter>
+          )}
+        </Content>
+      </Main>
+    </Root>
   );
 }
