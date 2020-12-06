@@ -13,7 +13,7 @@ import app from './features/app';
 import shared from './features/shared';
 
 const { App } = app.components;
-const { UserProvider } = shared.components;
+const { AuthProvider } = shared.components;
 
 const theme = createMuiTheme({
   breakpoints: {
@@ -43,7 +43,7 @@ ReactDOM.render(
     redirectUri={window.location.origin}
   >
     <ApolloWrapper>
-      <UserProvider>
+      <AuthProvider>
         <MuiThemeProvider theme={theme}>
           <ThemeProvider theme={theme}>
             <SnackbarProvider maxSnack={1}>
@@ -57,7 +57,7 @@ ReactDOM.render(
             </SnackbarProvider>
           </ThemeProvider>
         </MuiThemeProvider>
-      </UserProvider>
+      </AuthProvider>
     </ApolloWrapper>
   </Auth0Provider>,
   document.getElementById('root'),

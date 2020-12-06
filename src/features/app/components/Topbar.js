@@ -8,8 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
 
-// import UserInfo from './UserInfo';
-
 export default function Topbar() {
   const client = useApolloClient();
   const { isAuthenticated, logout } = useAuth0();

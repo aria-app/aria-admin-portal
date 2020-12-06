@@ -21,7 +21,7 @@ import SongsList from './SongsList';
 import SongsToolbar from './SongsToolbar';
 
 const { Pagination } = shared.components;
-const { useUser } = shared.hooks;
+const { useAuth } = shared.hooks;
 
 const Root = styled.div({
   display: 'flex',
@@ -42,7 +42,7 @@ const StyledToolbar = styled(Toolbar)((props) => ({
 }));
 
 export default function Songs() {
-  const user = useUser();
+  const { user } = useAuth();
   const [queryParams, setQueryParams] = useQueryParams({
     page: withDefault(NumberParam, 1),
     search: StringParam,
