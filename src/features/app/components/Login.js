@@ -27,7 +27,13 @@ const StyledContainer = styled(Container)((props) => ({
 
 export default function Login() {
   const [login, { error, loading }] = useMutation(LOGIN);
-  const { isAuthenticated, setAuthState, user } = useAuth();
+  const {
+    getIsAuthenticated,
+    getIsSessionExpired,
+    logout,
+    setAuthState,
+    user,
+  } = useAuth();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -61,7 +67,13 @@ export default function Login() {
     [email, login, password, setAuthState],
   );
 
-  if (isAuthenticated) {
+  React.useEffect(() => {
+    if (getIsSessionExpired()) {
+      logout();
+    }
+  }, [getIsSessionExpired, logout]);
+
+  if (getIsAuthenticated()) {
     return <Redirect noThrow to="/songs" />;
   }
 

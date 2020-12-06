@@ -48,7 +48,7 @@ function ApolloWrapper(props) {
       ...rest,
       headers: {
         ...headers,
-        authorization: `Bearer: ${token}`,
+        authorization: `Bearer ${token}`,
       },
     };
   });

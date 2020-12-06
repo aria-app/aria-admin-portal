@@ -35,22 +35,22 @@ const theme = createMuiTheme({
 });
 
 ReactDOM.render(
-  <AuthProvider>
-    <ApolloWrapper>
-      <MuiThemeProvider theme={theme}>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider maxSnack={1}>
-            <LocationProvider>
+  <MuiThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <SnackbarProvider maxSnack={1}>
+        <LocationProvider>
+          <AuthProvider>
+            <ApolloWrapper>
               <Router>
                 <QueryParamProvider path="/" reachHistory={globalHistory}>
                   <App default />
                 </QueryParamProvider>
               </Router>
-            </LocationProvider>
-          </SnackbarProvider>
-        </ThemeProvider>
-      </MuiThemeProvider>
-    </ApolloWrapper>
-  </AuthProvider>,
+            </ApolloWrapper>
+          </AuthProvider>
+        </LocationProvider>
+      </SnackbarProvider>
+    </ThemeProvider>
+  </MuiThemeProvider>,
   document.getElementById('root'),
 );

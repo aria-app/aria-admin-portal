@@ -7,12 +7,10 @@ export default function AuthProvider(props) {
   const [token, setToken] = React.useState();
   const [user, setUser] = React.useState();
 
-  const isAuthenticated = React.useMemo(() => {
-    if (!token || !expiresAt) {
-      return false;
-    }
+  const getIsAuthenticated = React.useCallback(() => !!token, [token]);
 
-    return new Date().getTime() / 1000 < expiresAt;
+  const getIsSessionExpired = React.useCallback(() => {
+    return token && expiresAt && new Date().getTime() / 1000 >= expiresAt;
   }, [expiresAt, token]);
 
   const logout = React.useCallback(() => {
@@ -50,8 +48,8 @@ export default function AuthProvider(props) {
   return (
     <AuthContext.Provider
       value={{
-        expiresAt,
-        isAuthenticated,
+        getIsAuthenticated,
+        getIsSessionExpired,
         logout,
         setAuthState,
         token,

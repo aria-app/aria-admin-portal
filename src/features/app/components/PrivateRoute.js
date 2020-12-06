@@ -8,9 +8,9 @@ const { useAuth } = shared.hooks;
 
 export default function PrivateRoute(props) {
   const { component: Component, ...rest } = props;
-  const { isAuthenticated } = useAuth();
+  const { getIsAuthenticated, getIsSessionExpired } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!getIsAuthenticated() || getIsSessionExpired()) {
     return <Redirect noThrow to="/login" />;
   }
 

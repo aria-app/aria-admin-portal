@@ -48,7 +48,7 @@ export default function Sidebar() {
           </ListItemIcon>
           <ListItemText primary="Songs" />
         </ListItem>
-        {user.isAdmin && (
+        {user && user.isAdmin && (
           <ListItem
             button
             onClick={() => handleItemClick('/users')}
