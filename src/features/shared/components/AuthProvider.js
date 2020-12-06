@@ -16,17 +16,34 @@ export default function AuthProvider(props) {
         variables: { email, password },
       });
 
-      console.log('login data', data);
-
       setExpiresAt(data.login.expiresAt);
       setToken(data.login.token);
       setUser(data.login.user);
+      window.localStorage.setItem('expiresAt', data.login.expiresAt);
+      window.localStorage.setItem('token', data.login.token);
+      window.localStorage.setItem('user', JSON.stringify(data.login.user));
     },
     [loginMutation, setExpiresAt, setToken, setUser],
   );
 
+  const handleLogout = React.useCallback(() => {
+    setExpiresAt(null);
+    setToken(null);
+    setUser(null);
+    window.localStorage.removeItem('expiresAt');
+    window.localStorage.removeItem('token');
+    window.localStorage.removeItem('user');
+  }, [setExpiresAt, setToken, setUser]);
+
   React.useEffect(() => {
-    window.localStorage.getItem('expiresAt');
+    try {
+      setExpiresAt(window.localStorage.getItem('expiresAt'));
+      setToken(window.localStorage.getItem('token'));
+      setUser(JSON.parse(window.localStorage.getItem('user')));
+    } catch (e) {
+      // eslint-disable-next-line
+      console.error('Failed to load user.');
+    }
   }, [setExpiresAt, setToken, setUser]);
 
   return (
@@ -36,6 +53,7 @@ export default function AuthProvider(props) {
         expiresAt,
         loading,
         login: handleLogin,
+        logout: handleLogout,
         token,
         user,
       }}

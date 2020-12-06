@@ -1,5 +1,4 @@
 import { useApolloClient } from '@apollo/client';
-import { useAuth0 } from '@auth0/auth0-react';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
@@ -8,14 +7,17 @@ import Typography from '@material-ui/core/Typography';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
 
+import shared from '../../shared';
+
+const { useAuth } = shared.hooks;
+
 export default function Topbar() {
+  const { logout, user } = useAuth();
   const client = useApolloClient();
-  const { isAuthenticated, logout } = useAuth0();
 
   const handleLogOutClick = React.useCallback(() => {
     client.resetStore();
-
-    logout({ returnTo: window.location.origin });
+    logout();
   }, [client, logout]);
 
   return (
@@ -24,7 +26,7 @@ export default function Topbar() {
         <Box flexGrow={1}>
           <Typography variant="h6">Aria Admin Portal</Typography>
         </Box>
-        {isAuthenticated && (
+        {user && (
           <>
             <IconButton color="inherit" edge="end" onClick={handleLogOutClick}>
               <ExitToAppIcon />
