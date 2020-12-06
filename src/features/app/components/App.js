@@ -58,7 +58,7 @@ export default function App() {
           {loading && <LinearProgress />}
           {!loading && (
             <StyledRouter>
-              <Login path="sign-in" />
+              <Login path="login" />
               <PrivateRoute component={Songs} path="/" />
               <PrivateRoute component={Songs} path="songs" />
               <PrivateRoute component={Song} path="song/:id" />

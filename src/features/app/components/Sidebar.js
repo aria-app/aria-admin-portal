@@ -8,6 +8,10 @@ import { useLocation, useNavigate } from '@reach/router';
 import React from 'react';
 import styled from 'styled-components';
 
+import shared from '../../shared';
+
+const { useAuth } = shared.hooks;
+
 const Root = styled.div((props) => ({
   backgroundColor: props.theme.palette.background.paper,
   borderRight: `1px solid ${props.theme.palette.divider}`,
@@ -18,6 +22,7 @@ const Root = styled.div((props) => ({
 }));
 
 export default function Sidebar() {
+  const { user } = useAuth();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -43,16 +48,18 @@ export default function Sidebar() {
           </ListItemIcon>
           <ListItemText primary="Songs" />
         </ListItem>
-        <ListItem
-          button
-          onClick={() => handleItemClick('/users')}
-          selected={pathname === '/users'}
-        >
-          <ListItemIcon>
-            <PeopleIcon color="inherit" />
-          </ListItemIcon>
-          <ListItemText primary="Users" />
-        </ListItem>
+        {user.isAdmin && (
+          <ListItem
+            button
+            onClick={() => handleItemClick('/users')}
+            selected={pathname === '/users'}
+          >
+            <ListItemIcon>
+              <PeopleIcon color="inherit" />
+            </ListItemIcon>
+            <ListItemText primary="Users" />
+          </ListItem>
+        )}
       </List>
     </Root>
   );

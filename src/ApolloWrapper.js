@@ -6,56 +6,58 @@ import {
   InMemoryCache,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import { useAuth0 } from '@auth0/auth0-react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+
+import shared from './features/shared';
+
+const { useAuth } = shared.hooks;
+
+const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      songs: {
+        merge: true,
+      },
+    },
+  },
+});
+
+const httpLink = new HttpLink({
+  uri: process.env.REACT_APP_API_URI,
+});
+
+const resolvers = {
+  Song: {
+    description: () => 'A really nifty description of the song.',
+  },
+};
+
+const typeDefs = gql`
+  extend type Song {
+    description: String
+  }
+`;
 
 function ApolloWrapper(props) {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const [bearerToken, setBearerToken] = useState('');
-  const httpLink = new HttpLink({
-    uri: process.env.REACT_APP_API_URI,
-  });
+  const { token } = useAuth();
 
-  useEffect(() => {
-    const getToken = async () => {
-      const token = isAuthenticated ? await getAccessTokenSilently() : '';
-      setBearerToken(token);
-    };
-    getToken();
-  }, [getAccessTokenSilently, isAuthenticated]);
+  const authLink = setContext((_, { headers, ...rest }) => {
+    if (!token) return { headers, ...rest };
 
-  const authLink = setContext((arg1, { headers, ...rest }) => {
-    if (!bearerToken) return { headers, ...rest };
     return {
       ...rest,
       headers: {
         ...headers,
-        authorization: `Bearer: ${bearerToken}`,
+        authorization: `Bearer: ${token}`,
       },
     };
   });
 
   const client = new ApolloClient({
-    cache: new InMemoryCache({
-      typePolicies: {
-        Query: {
-          songs: {
-            merge: true,
-          },
-        },
-      },
-    }),
+    cache,
     link: authLink.concat(httpLink),
-    resolvers: {
-      Song: {
-        description: () => 'A really nifty description of the song.',
-      },
-    },
-    typeDefs: gql`
-      extend type Song {
-        description: String
-      }
-    `,
+    resolvers,
+    typeDefs,
   });
 
   return <ApolloProvider client={client} {...props} />;

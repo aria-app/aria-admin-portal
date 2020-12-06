@@ -1,32 +1,21 @@
-import { useMutation } from '@apollo/client';
 import React from 'react';
 
 import AuthContext from '../contexts/AuthContext';
-import { LOGIN } from '../documentNodes';
 
 export default function AuthProvider(props) {
-  const [loginMutation, { error, loading }] = useMutation(LOGIN);
   const [expiresAt, setExpiresAt] = React.useState();
   const [token, setToken] = React.useState();
   const [user, setUser] = React.useState();
 
-  const handleLogin = React.useCallback(
-    async ({ email, password }) => {
-      const { data } = await loginMutation({
-        variables: { email, password },
-      });
+  const isAuthenticated = React.useMemo(() => {
+    if (!token || !expiresAt) {
+      return false;
+    }
 
-      setExpiresAt(data.login.expiresAt);
-      setToken(data.login.token);
-      setUser(data.login.user);
-      window.localStorage.setItem('expiresAt', data.login.expiresAt);
-      window.localStorage.setItem('token', data.login.token);
-      window.localStorage.setItem('user', JSON.stringify(data.login.user));
-    },
-    [loginMutation, setExpiresAt, setToken, setUser],
-  );
+    return new Date().getTime() / 1000 < expiresAt;
+  }, [expiresAt, token]);
 
-  const handleLogout = React.useCallback(() => {
+  const logout = React.useCallback(() => {
     setExpiresAt(null);
     setToken(null);
     setUser(null);
@@ -34,6 +23,18 @@ export default function AuthProvider(props) {
     window.localStorage.removeItem('token');
     window.localStorage.removeItem('user');
   }, [setExpiresAt, setToken, setUser]);
+
+  const setAuthState = React.useCallback(
+    (data) => {
+      setExpiresAt(data.expiresAt);
+      setToken(data.token);
+      setUser(data.user);
+      window.localStorage.setItem('expiresAt', data.expiresAt);
+      window.localStorage.setItem('token', data.token);
+      window.localStorage.setItem('user', JSON.stringify(data.user));
+    },
+    [setExpiresAt, setToken, setUser],
+  );
 
   React.useEffect(() => {
     try {
@@ -49,11 +50,10 @@ export default function AuthProvider(props) {
   return (
     <AuthContext.Provider
       value={{
-        error,
         expiresAt,
-        loading,
-        login: handleLogin,
-        logout: handleLogout,
+        isAuthenticated,
+        logout,
+        setAuthState,
         token,
         user,
       }}

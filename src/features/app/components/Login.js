@@ -1,13 +1,16 @@
+import { useMutation } from '@apollo/client';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import { Redirect } from '@reach/router';
 import React from 'react';
 import styled from 'styled-components';
 
 import shared from '../../shared';
+import { LOGIN } from '../documentNodes';
 
 const { useAuth } = shared.hooks;
 
@@ -23,7 +26,8 @@ const StyledContainer = styled(Container)((props) => ({
 }));
 
 export default function Login() {
-  const { error, loading, login, user } = useAuth();
+  const [login, { error, loading }] = useMutation(LOGIN);
+  const { isAuthenticated, setAuthState, user } = useAuth();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -46,12 +50,20 @@ export default function Login() {
       e.preventDefault();
 
       try {
-        await login({ email, password });
+        const { data } = await login({
+          variables: { email, password },
+        });
+
+        setAuthState(data.login);
         // eslint-disable-next-line
       } catch {}
     },
-    [email, login, password],
+    [email, login, password, setAuthState],
   );
+
+  if (isAuthenticated) {
+    return <Redirect noThrow to="/songs" />;
+  }
 
   return (
     <Root>
