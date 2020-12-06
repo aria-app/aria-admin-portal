@@ -39,7 +39,7 @@ export const GET_SONGS = gql`
     $search: String
     $sort: String
     $sortDirection: String
-    $userId: ID!
+    $userId: ID
   ) {
     songs(
       limit: $limit

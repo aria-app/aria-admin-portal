@@ -21,7 +21,6 @@ import SongsList from './SongsList';
 import SongsToolbar from './SongsToolbar';
 
 const { Pagination } = shared.components;
-const { useAuth } = shared.hooks;
 
 const Root = styled.div({
   display: 'flex',
@@ -41,7 +40,6 @@ const StyledToolbar = styled(Toolbar)((props) => ({
 }));
 
 export default function Songs() {
-  const { user } = useAuth();
   const [queryParams, setQueryParams] = useQueryParams({
     page: withDefault(NumberParam, 1),
     search: StringParam,
@@ -53,11 +51,9 @@ export default function Songs() {
   const { data, error, loading } = useQuery(documentNodes.GET_SONGS, {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
-    skip: !user,
     variables: {
       ...queryParams,
-      limit: 5,
-      userId: user && user.id,
+      limit: 10,
     },
   });
   const { enqueueSnackbar } = useSnackbar();
