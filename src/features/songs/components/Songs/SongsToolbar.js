@@ -28,7 +28,7 @@ export default function SongsToolbar(props) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearchChange = React.useCallback(
-    debounce(500, (e) => {
+    debounce(250, (e) => {
       onSearchChange(e.target.value || undefined);
     }),
     [onSearchChange],

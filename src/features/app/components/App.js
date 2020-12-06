@@ -1,4 +1,3 @@
-// import { gql } from '@apollo/client';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Router } from '@reach/router';
@@ -7,9 +6,9 @@ import styled from 'styled-components';
 
 import songs from '../../songs';
 import Login from './Login';
+import Navigation from './Navigation';
 import NotFound from './NotFound';
 import PrivateRoute from './PrivateRoute';
-import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
 const { Song, Songs } = songs.components;
@@ -29,10 +28,13 @@ const Root = styled.div((props) => ({
   top: 0,
 }));
 
-const Main = styled.div({
+const Main = styled.div((props) => ({
   display: 'flex',
   flex: '1 1 auto',
-});
+  [`@media (max-width: ${props.theme.breakpoints.values.md}px)`]: {
+    flexDirection: 'column-reverse',
+  },
+}));
 
 const Content = styled.div({
   display: 'flex',
@@ -54,7 +56,7 @@ export default function App() {
       <CssBaseline />
       <Topbar />
       <Main>
-        {!loading && <PrivateRoute component={Sidebar} />}
+        {!loading && <PrivateRoute component={Navigation} />}
         <Content>
           {loading && <LinearProgress />}
           {!loading && (

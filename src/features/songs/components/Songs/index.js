@@ -36,7 +36,6 @@ const StyledContainer = styled(Container)((props) => ({
 }));
 
 const StyledToolbar = styled(Toolbar)((props) => ({
-  borderBottom: `1px solid ${props.theme.palette.divider}`,
   borderTop: `1px solid ${props.theme.palette.divider}`,
   flex: 0,
 }));
