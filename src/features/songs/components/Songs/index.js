@@ -26,12 +26,14 @@ const Root = styled.div({
   display: 'flex',
   flex: 1,
   flexDirection: 'column',
+  overflow: 'hidden',
 });
 
 const StyledContainer = styled(Container)((props) => ({
   backgroundColor: props.theme.palette.background.paper,
   boxShadow: `-1px 0 0 ${props.theme.palette.divider}, 1px 0 0 ${props.theme.palette.divider}`,
   flex: 1,
+  overflow: 'hidden',
 }));
 
 const StyledToolbar = styled(Toolbar)((props) => ({
@@ -53,7 +55,7 @@ export default function Songs() {
     notifyOnNetworkStatusChange: true,
     variables: {
       ...queryParams,
-      limit: 10,
+      limit: 15,
     },
   });
   const { enqueueSnackbar } = useSnackbar();

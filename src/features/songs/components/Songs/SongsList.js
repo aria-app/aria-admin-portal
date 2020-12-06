@@ -1,5 +1,4 @@
 import { useApolloClient } from '@apollo/client';
-import Box from '@material-ui/core/Box';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -8,8 +7,14 @@ import formatDistance from 'date-fns/formatDistance';
 import parseISO from 'date-fns/parseISO';
 import { PropTypes } from 'prop-types';
 import React from 'react';
+import styled from 'styled-components';
 
 import * as documentNodes from '../../documentNodes';
+
+const Root = styled.div({
+  flex: 1,
+  overflowY: 'auto',
+});
 
 export default function SongsList(props) {
   const apolloClient = useApolloClient();
@@ -23,11 +28,11 @@ export default function SongsList(props) {
   );
 
   return (
-    <Box flex={1}>
+    <Root>
       {loading && <LinearProgress />}
       {error && <p>Error :(</p>}
       {!loading && !error && (
-        <List>
+        <List style={{ overflowY: 'auto' }}>
           {songs.map((song) => (
             <ListItem
               button
@@ -52,7 +57,7 @@ export default function SongsList(props) {
           ))}
         </List>
       )}
-    </Box>
+    </Root>
   );
 }
 

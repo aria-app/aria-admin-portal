@@ -34,18 +34,21 @@ const Main = styled.div((props) => ({
   [`@media (max-width: ${props.theme.breakpoints.values.md}px)`]: {
     flexDirection: 'column-reverse',
   },
+  overflow: 'hidden',
 }));
 
 const Content = styled.div({
   display: 'flex',
   flex: '1 1 auto',
   flexDirection: 'column',
+  overflow: 'hidden',
 });
 
 const StyledRouter = styled(Router)({
   display: 'flex',
   flex: '1 1 auto',
   flexDirection: 'column',
+  overflow: 'hidden',
 });
 
 export default function App() {
