@@ -5,7 +5,6 @@ export const LOGIN = gql`
     login(email: $email, password: $password) {
       expiresAt
       success
-      token
       user {
         email
         firstName

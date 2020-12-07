@@ -38,11 +38,16 @@ export default function SongsList(props) {
               button
               key={song.id}
               onClick={() => handleSongClick(song)}
-              onMouseOver={() => {
-                apolloClient.query({
-                  query: documentNodes.GET_SONG,
-                  variables: { id: song.id },
-                });
+              onMouseOver={async () => {
+                try {
+                  await apolloClient.query({
+                    query: documentNodes.GET_SONG,
+                    variables: { id: song.id },
+                  });
+                } catch (e) {
+                  // eslint-disable-next-line no-console
+                  console.error(e);
+                }
               }}
             >
               <ListItemText

@@ -39,15 +39,15 @@ ReactDOM.render(
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={1}>
         <LocationProvider>
-          <AuthProvider>
-            <ApolloWrapper>
+          <ApolloWrapper>
+            <AuthProvider>
               <Router>
                 <QueryParamProvider path="/" reachHistory={globalHistory}>
                   <App default />
                 </QueryParamProvider>
               </Router>
-            </ApolloWrapper>
-          </AuthProvider>
+            </AuthProvider>
+          </ApolloWrapper>
         </LocationProvider>
       </SnackbarProvider>
     </ThemeProvider>

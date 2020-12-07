@@ -5,12 +5,7 @@ import {
   HttpLink,
   InMemoryCache,
 } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
 import React from 'react';
-
-import shared from './features/shared';
-
-const { useAuth } = shared.hooks;
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -20,10 +15,6 @@ const cache = new InMemoryCache({
       },
     },
   },
-});
-
-const httpLink = new HttpLink({
-  uri: process.env.REACT_APP_API_URI,
 });
 
 const resolvers = {
@@ -39,23 +30,11 @@ const typeDefs = gql`
 `;
 
 function ApolloWrapper(props) {
-  const { token } = useAuth();
-
-  const authLink = setContext((_, { headers, ...rest }) => {
-    if (!token) return { headers, ...rest };
-
-    return {
-      ...rest,
-      headers: {
-        ...headers,
-        authorization: `Bearer ${token}`,
-      },
-    };
-  });
-
   const client = new ApolloClient({
     cache,
-    link: authLink.concat(httpLink),
+    link: new HttpLink({
+      uri: process.env.REACT_APP_API_URI,
+    }),
     resolvers,
     typeDefs,
   });
