@@ -1,50 +1,45 @@
+import { useQuery } from '@apollo/client';
 import React from 'react';
 
 import AuthContext from '../contexts/AuthContext';
+import { ME } from '../documentNodes';
 
 export default function AuthProvider(props) {
+  const { data, error, loading, refetch } = useQuery(ME);
   const [expiresAt, setExpiresAt] = React.useState();
-  const [user, setUser] = React.useState();
 
-  const clearAuthState = React.useCallback(() => {
+  const handleLogout = React.useCallback(() => {
     setExpiresAt(null);
-    setUser(null);
     window.localStorage.removeItem('expiresAt');
-    window.localStorage.removeItem('user');
-  }, [setExpiresAt, setUser]);
+  }, [setExpiresAt]);
 
   const getIsAuthenticated = React.useCallback(
     () => expiresAt && new Date().getTime() / 1000 < expiresAt,
     [expiresAt],
   );
 
-  const setAuthState = React.useCallback(
-    (data) => {
-      setExpiresAt(data.expiresAt);
-      setUser(data.user);
-      window.localStorage.setItem('expiresAt', data.expiresAt);
-      window.localStorage.setItem('user', JSON.stringify(data.user));
+  const handleLogin = React.useCallback(
+    (loginResult) => {
+      setExpiresAt(loginResult.expiresAt);
+      window.localStorage.setItem('expiresAt', loginResult.expiresAt);
+      refetch();
     },
-    [setExpiresAt, setUser],
+    [refetch, setExpiresAt],
   );
 
   React.useEffect(() => {
-    try {
-      setExpiresAt(window.localStorage.getItem('expiresAt'));
-      setUser(JSON.parse(window.localStorage.getItem('user')));
-    } catch (e) {
-      // eslint-disable-next-line
-      console.error('Failed to load user.');
-    }
-  }, [setExpiresAt, setUser]);
+    setExpiresAt(window.localStorage.getItem('expiresAt'));
+  }, [setExpiresAt]);
 
   return (
     <AuthContext.Provider
       value={{
-        clearAuthState,
+        error,
         getIsAuthenticated,
-        setAuthState,
-        user,
+        handleLogin,
+        handleLogout,
+        loading,
+        user: data ? data.me : null,
       }}
       {...props}
     />

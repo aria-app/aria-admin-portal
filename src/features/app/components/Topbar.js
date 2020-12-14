@@ -13,14 +13,14 @@ import { LOGOUT } from '../documentNodes';
 const { useAuth } = shared.hooks;
 
 export default function Topbar() {
-  const { clearAuthState, user } = useAuth();
+  const { handleLogout, loading, user } = useAuth();
   const [logout, { client }] = useMutation(LOGOUT);
 
   const handleLogOutClick = React.useCallback(async () => {
     await logout();
-    clearAuthState();
     client.resetStore();
-  }, [clearAuthState, client, logout]);
+    handleLogout();
+  }, [client, handleLogout, logout]);
 
   return (
     <AppBar position="static">
@@ -28,7 +28,7 @@ export default function Topbar() {
         <Box flexGrow={1}>
           <Typography variant="h6">Aria Admin Portal</Typography>
         </Box>
-        {user && (
+        {!loading && user && (
           <>
             <IconButton color="inherit" edge="end" onClick={handleLogOutClick}>
               <ExitToAppIcon />

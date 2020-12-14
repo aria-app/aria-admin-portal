@@ -5,13 +5,6 @@ export const LOGIN = gql`
     login(email: $email, password: $password) {
       expiresAt
       success
-      user {
-        email
-        firstName
-        id
-        isAdmin
-        lastName
-      }
     }
   }
 `;
