@@ -1,4 +1,4 @@
-import { useApolloClient } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
@@ -8,17 +8,19 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
 
 import shared from '../../shared';
+import { LOGOUT } from '../documentNodes';
 
 const { useAuth } = shared.hooks;
 
 export default function Topbar() {
-  const { logout, user } = useAuth();
-  const client = useApolloClient();
+  const { clearAuthState, user } = useAuth();
+  const [logout, { client }] = useMutation(LOGOUT);
 
-  const handleLogOutClick = React.useCallback(() => {
+  const handleLogOutClick = React.useCallback(async () => {
+    await logout();
+    clearAuthState();
     client.resetStore();
-    logout();
-  }, [client, logout]);
+  }, [clearAuthState, client, logout]);
 
   return (
     <AppBar position="static">

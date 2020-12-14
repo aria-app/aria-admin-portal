@@ -6,17 +6,17 @@ export default function AuthProvider(props) {
   const [expiresAt, setExpiresAt] = React.useState();
   const [user, setUser] = React.useState();
 
-  const getIsAuthenticated = React.useCallback(
-    () => expiresAt && new Date().getTime() / 1000 < expiresAt,
-    [expiresAt],
-  );
-
-  const logout = React.useCallback(() => {
+  const clearAuthState = React.useCallback(() => {
     setExpiresAt(null);
     setUser(null);
     window.localStorage.removeItem('expiresAt');
     window.localStorage.removeItem('user');
   }, [setExpiresAt, setUser]);
+
+  const getIsAuthenticated = React.useCallback(
+    () => expiresAt && new Date().getTime() / 1000 < expiresAt,
+    [expiresAt],
+  );
 
   const setAuthState = React.useCallback(
     (data) => {
@@ -41,8 +41,8 @@ export default function AuthProvider(props) {
   return (
     <AuthContext.Provider
       value={{
+        clearAuthState,
         getIsAuthenticated,
-        logout,
         setAuthState,
         user,
       }}
