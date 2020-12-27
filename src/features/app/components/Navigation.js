@@ -32,7 +32,7 @@ export default function Navigation() {
     (path) => {
       if (path === selectedPath) return;
 
-      navigate(path);
+      navigate(`/${path}`);
     },
     [navigate, selectedPath],
   );

@@ -18,9 +18,12 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
 
+import shared from '../../shared';
 import * as documentNodes from '../documentNodes';
 import SongDelete from './SongDelete';
 import SongEdit from './SongEdit';
+
+const { useAuth } = shared.hooks;
 
 const Root = styled.div({
   display: 'flex',
@@ -41,6 +44,7 @@ const StyledToolbar = styled(Toolbar)((props) => ({
 
 export default function Song(props) {
   const { id } = props;
+  const { user } = useAuth();
   const [deleteSong] = useMutation(documentNodes.DELETE_SONG);
   const [updateSong, { loading: updateSongLoading }] = useMutation(
     documentNodes.UPDATE_SONG,
@@ -125,6 +129,10 @@ export default function Song(props) {
     [data, enqueueSnackbar, updateSong],
   );
 
+  const isEditVisible = React.useMemo(() => {
+    return data && data.song && data.song.user.id === user.id;
+  }, [data, user]);
+
   return (
     <Root>
       {loading && <LinearProgress />}
@@ -141,9 +149,11 @@ export default function Song(props) {
                   <Typography color="textPrimary">{data.song.name}</Typography>
                 </Breadcrumbs>
               </Box>
-              <IconButton onClick={handleEditButtonClick}>
-                <EditIcon color="inherit" />
-              </IconButton>
+              {isEditVisible && (
+                <IconButton onClick={handleEditButtonClick}>
+                  <EditIcon color="inherit" />
+                </IconButton>
+              )}
               <IconButton edge="end" onClick={handleDeleteButtonClick}>
                 <DeleteIcon color="inherit" />
               </IconButton>
@@ -153,6 +163,26 @@ export default function Song(props) {
                 <FormControl>
                   <FormLabel>Name</FormLabel>
                   <Typography>{data.song.name}</Typography>
+                </FormControl>
+              </Box>
+              <Box paddingTop={3}>
+                <FormControl>
+                  <FormLabel>Created By</FormLabel>
+                  <Typography>
+                    {data.song.user.firstName} {data.song.user.lastName}
+                  </Typography>
+                </FormControl>
+              </Box>
+              <Box paddingTop={3}>
+                <FormControl>
+                  <FormLabel>BPM</FormLabel>
+                  <Typography>{data.song.bpm}</Typography>
+                </FormControl>
+              </Box>
+              <Box paddingTop={3}>
+                <FormControl>
+                  <FormLabel>Measure Count</FormLabel>
+                  <Typography>{data.song.measureCount}</Typography>
                 </FormControl>
               </Box>
               <Box paddingTop={3}>
@@ -167,18 +197,6 @@ export default function Song(props) {
                       },
                     )}
                   </Typography>
-                </FormControl>
-              </Box>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>BPM</FormLabel>
-                  <Typography>{data.song.bpm}</Typography>
-                </FormControl>
-              </Box>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>Measure Count</FormLabel>
-                  <Typography>{data.song.measureCount}</Typography>
                 </FormControl>
               </Box>
             </Box>

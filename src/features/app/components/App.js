@@ -4,6 +4,7 @@ import { Router } from '@reach/router';
 import React, { Suspense } from 'react';
 import styled from 'styled-components';
 
+import shared from '../../shared';
 import songs from '../../songs';
 import Login from './Login';
 import Navigation from './Navigation';
@@ -11,6 +12,7 @@ import NotFound from './NotFound';
 import PrivateRoute from './PrivateRoute';
 import Topbar from './Topbar';
 
+const { useAuth } = shared.hooks;
 const { Song, Songs } = songs.components;
 
 const Users = React.lazy(() => import('./Users'));
@@ -52,7 +54,7 @@ const StyledRouter = styled(Router)({
 });
 
 export default function App() {
-  const loading = false;
+  const { loading } = useAuth();
 
   return (
     <Root default>
@@ -67,8 +69,8 @@ export default function App() {
               <StyledRouter>
                 <Login path="login" />
                 <PrivateRoute component={Songs} path="/" />
+                <PrivateRoute component={Song} path="songs/:id" />
                 <PrivateRoute component={Songs} path="songs" />
-                <PrivateRoute component={Song} path="song/:id" />
                 <PrivateRoute component={Users} path="users" />
                 <NotFound path="*" />
               </StyledRouter>

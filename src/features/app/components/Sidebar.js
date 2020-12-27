@@ -4,6 +4,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
 import PeopleIcon from '@material-ui/icons/People';
+import startsWith from 'lodash/fp/startsWith';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -33,7 +34,7 @@ export default function Sidebar(props) {
             button
             key={item.path}
             onClick={() => onSelectedPathChange(item.path)}
-            selected={selectedPath === item.path}
+            selected={startsWith(item.path, selectedPath)}
           >
             <ListItemIcon>{getIcon(item)}</ListItemIcon>
             <ListItemText primary={item.text} />

@@ -28,6 +28,12 @@ export const GET_SONG = gql`
       id
       measureCount
       name
+      user {
+        id
+        email
+        firstName
+        lastName
+      }
     }
   }
 `;

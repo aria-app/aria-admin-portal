@@ -8,7 +8,11 @@ const { useAuth } = shared.hooks;
 
 export default function PrivateRoute(props) {
   const { component: Component, ...rest } = props;
-  const { getIsAuthenticated } = useAuth();
+  const { getIsAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
 
   if (!getIsAuthenticated()) {
     return <Redirect noThrow to="/login" />;

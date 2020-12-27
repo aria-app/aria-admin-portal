@@ -82,7 +82,7 @@ export default function Songs() {
         });
 
         setIsAddOpen(false);
-        navigate(`/song/${result.data.createSong.song.id}`);
+        navigate(`/songs/${result.data.createSong.song.id}`);
       } catch (e) {
         enqueueSnackbar('The song could not be created.', {
           variant: 'error',
@@ -109,7 +109,7 @@ export default function Songs() {
 
   const handleSongClick = React.useCallback(
     (song) => {
-      navigate(`/song/${song.id}`);
+      navigate(`/songs/${song.id}`);
     },
     [navigate],
   );
