@@ -1,11 +1,12 @@
 import CssBaseline from '@material-ui/core/CssBaseline';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Router } from '@reach/router';
-import React, { Suspense } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import shared from '../../shared';
 import songs from '../../songs';
+import users from '../../users';
 import Login from './Login';
 import Navigation from './Navigation';
 import NotFound from './NotFound';
@@ -14,8 +15,7 @@ import Topbar from './Topbar';
 
 const { useAuth } = shared.hooks;
 const { Song, Songs } = songs.components;
-
-const Users = React.lazy(() => import('./Users'));
+const { UserDetails, Users } = users.components;
 
 const Root = styled.div((props) => ({
   backgroundColor: props.theme.palette.background.default,
@@ -65,16 +65,15 @@ export default function App() {
         <Content>
           {loading && <LinearProgress />}
           {!loading && (
-            <Suspense fallback={<LinearProgress />}>
-              <StyledRouter>
-                <Login path="login" />
-                <PrivateRoute component={Songs} path="/" />
-                <PrivateRoute component={Song} path="songs/:id" />
-                <PrivateRoute component={Songs} path="songs" />
-                <PrivateRoute component={Users} path="users" />
-                <NotFound path="*" />
-              </StyledRouter>
-            </Suspense>
+            <StyledRouter>
+              <Login path="login" />
+              <PrivateRoute component={Songs} path="/" />
+              <PrivateRoute component={Song} path="songs/:id" />
+              <PrivateRoute component={Songs} path="songs" />
+              <PrivateRoute component={Users} path="users" />
+              <PrivateRoute component={UserDetails} path="users/:id" />
+              <NotFound path="*" />
+            </StyledRouter>
           )}
         </Content>
       </Main>
