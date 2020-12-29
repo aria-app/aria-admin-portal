@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-export default function SequenceDelete(props) {
+export default function SequenceDetailsDelete(props) {
   const { isOpen, onCancel, onDelete, sequence } = props;
   const [isDeleting, setIsDeleting] = React.useState();
 
@@ -52,7 +52,7 @@ export default function SequenceDelete(props) {
   );
 }
 
-SequenceDelete.propTypes = {
+SequenceDetailsDelete.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,

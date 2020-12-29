@@ -66,7 +66,6 @@ export const GET_SONG = gql`
     song(id: $id) {
       bpm
       dateModified
-      description @client
       id
       measureCount
       name
@@ -141,6 +140,21 @@ export const GET_TRACK = gql`
         name
       }
       volume
+    }
+  }
+`;
+
+export const UPDATE_NOTE = gql`
+  mutation UpdateNote($input: UpdateNoteInput!) {
+    updateNote(input: $input) {
+      note {
+        id
+        points {
+          x
+          y
+        }
+      }
+      success
     }
   }
 `;

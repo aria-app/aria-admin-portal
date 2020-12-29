@@ -23,6 +23,7 @@ import SequenceDetailsDelete from './SequenceDetailsDelete';
 import SequenceDetailsEdit from './SequenceDetailsEdit';
 import SequenceDetailsInfo from './SequenceDetailsInfo';
 import SequenceDetailsNotes from './SequenceDetailsNotes';
+import SequenceDetailsNotesEdit from './SequenceDetailsNotesEdit';
 
 const { useAuth } = shared.hooks;
 
@@ -51,6 +52,9 @@ export default function SequenceDetails(props) {
   const { sequenceId, songId } = props;
   const { user } = useAuth();
   const [deleteSequence] = useMutation(documentNodes.DELETE_SEQUENCE);
+  const [updateNote, { loading: updateNoteLoading }] = useMutation(
+    documentNodes.UPDATE_NOTE,
+  );
   const [updateSequence, { loading: updateSequenceLoading }] = useMutation(
     documentNodes.UPDATE_SEQUENCE,
   );
@@ -64,6 +68,7 @@ export default function SequenceDetails(props) {
   });
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [selectedNote, setSelectedNote] = React.useState();
   const [selectedTab, setSelectedTab] = React.useState('info');
 
   const handleDeleteButtonClick = React.useCallback(() => {
@@ -133,9 +138,55 @@ export default function SequenceDetails(props) {
     [data, enqueueSnackbar, updateSequence],
   );
 
-  const handleNoteClick = React.useCallback((note) => {
-    console.log('Clicked Note', note);
+  const handleNoteClick = React.useCallback(
+    (note) => {
+      setSelectedNote(note);
+    },
+    [setSelectedNote],
+  );
+
+  const handleNotesEditCancel = React.useCallback(() => {
+    setSelectedNote(undefined);
   }, []);
+
+  const handleNotesEditSave = React.useCallback(
+    async (updates) => {
+      try {
+        if (
+          updates.endX === selectedNote.points[1].x &&
+          updates.endY === selectedNote.points[1].y &&
+          updates.startX === selectedNote.points[0].x &&
+          updates.startY === selectedNote.points[0].y
+        ) {
+          enqueueSnackbar('No changes.');
+          setSelectedNote(undefined);
+          return;
+        }
+
+        await updateNote({
+          variables: {
+            input: {
+              id: selectedNote.id,
+              points: [
+                { x: updates.startX, y: updates.startY },
+                { x: updates.endX, y: updates.endY },
+              ],
+            },
+          },
+        });
+
+        enqueueSnackbar('The note was updated.', {
+          variant: 'success',
+        });
+        setSelectedNote(undefined);
+      } catch (e) {
+        enqueueSnackbar('The note could not be updated.', {
+          variant: 'error',
+        });
+      }
+    },
+    [enqueueSnackbar, selectedNote, updateNote],
+  );
 
   const handleTabsChange = React.useCallback(
     (e, value) => {
@@ -218,6 +269,12 @@ export default function SequenceDetails(props) {
               onCancel={handleEditCancel}
               onSave={handleEditSave}
               sequence={data.sequence}
+            />
+            <SequenceDetailsNotesEdit
+              isSaving={updateNoteLoading}
+              note={selectedNote}
+              onCancel={handleNotesEditCancel}
+              onSave={handleNotesEditSave}
             />
           </React.Fragment>
         )}

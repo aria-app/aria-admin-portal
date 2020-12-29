@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-export default function TrackEdit(props) {
+export default function TrackDetailsEdit(props) {
   const { isOpen, isSaving, onCancel, onSave, track } = props;
   const { control, errors, handleSubmit, reset } = useForm();
 
@@ -55,7 +55,7 @@ export default function TrackEdit(props) {
   );
 }
 
-TrackEdit.propTypes = {
+TrackDetailsEdit.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   isSaving: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,

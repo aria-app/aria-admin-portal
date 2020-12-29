@@ -10,51 +10,58 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-export default function SongDetailsEdit(props) {
-  const { isOpen, isSaving, onCancel, onSave, song } = props;
+export default function SequenceDetailsNotesEdit(props) {
+  const { isSaving, note, onCancel, onSave } = props;
   const { control, errors, handleSubmit, reset } = useForm();
 
   React.useEffect(() => {
-    if (isOpen) {
+    if (note) {
       reset({
-        bpm: song.bpm,
-        measureCount: song.measureCount,
-        name: song.name,
+        endX: note.points[1].x,
+        endY: note.points[1].y,
+        startX: note.points[0].x,
+        startY: note.points[0].y,
       });
     }
-  }, [isOpen, reset, song]);
+  }, [note, reset]);
 
   return (
-    <Dialog fullWidth maxWidth="sm" open={isOpen}>
-      <DialogTitle>Edit Song</DialogTitle>
+    <Dialog fullWidth maxWidth="sm" open={!!note}>
+      <DialogTitle>Edit Note</DialogTitle>
       <form onSubmit={handleSubmit(onSave)}>
         <DialogContent>
           <Controller
             as={TextField}
             autoFocus
             control={control}
-            error={!!errors.name}
+            error={!!errors.startX}
             fullWidth
-            helperText={errors.name && 'You must enter a Name.'}
-            id="name"
-            label="Name"
-            name="name"
-            rules={{ required: true }}
+            helperText={
+              errors.startX &&
+              'You must enter an x value for the starting point.'
+            }
+            id="startX"
+            label="Start X"
+            min={0}
+            name="startX"
+            rules={{ required: true, valueAsNumber: true }}
+            type="number"
           />
           <Box paddingTop={3}>
             <Controller
               as={TextField}
               autoFocus
               control={control}
-              error={!!errors.bpm}
+              error={!!errors.startY}
               fullWidth
               helperText={
-                errors.bpm && 'You must enter a value for Beats Per Minute.'
+                errors.startY &&
+                'You must enter an y value for the starting point.'
               }
-              id="bpm"
-              label="Beats Per Minute"
+              id="startY"
+              label="Start Y"
               min={0}
-              name="bpm"
+              name="startY"
               rules={{ required: true, valueAsNumber: true }}
               type="number"
             />
@@ -64,15 +71,33 @@ export default function SongDetailsEdit(props) {
               as={TextField}
               autoFocus
               control={control}
-              error={!!errors.measureCount}
+              error={!!errors.endX}
               fullWidth
               helperText={
-                errors.measureCount && 'You must enter a Measure Count.'
+                errors.endX && 'You must enter an x value for the ending point.'
               }
-              id="measureCount"
-              label="Measure Count"
+              id="endX"
+              label="End X"
               min={0}
-              name="measureCount"
+              name="endX"
+              rules={{ required: true, valueAsNumber: true }}
+              type="number"
+            />
+          </Box>
+          <Box paddingTop={3}>
+            <Controller
+              as={TextField}
+              autoFocus
+              control={control}
+              error={!!errors.endY}
+              fullWidth
+              helperText={
+                errors.endY && 'You must enter an y value for the ending point.'
+              }
+              id="endY"
+              label="End Y"
+              min={0}
+              name="endY"
               rules={{ required: true, valueAsNumber: true }}
               type="number"
             />
@@ -91,10 +116,9 @@ export default function SongDetailsEdit(props) {
   );
 }
 
-SongDetailsEdit.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
+SequenceDetailsNotesEdit.propTypes = {
   isSaving: PropTypes.bool.isRequired,
+  note: PropTypes.object,
   onCancel: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  song: PropTypes.object,
 };

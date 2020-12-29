@@ -172,7 +172,7 @@ export default function TrackDetails(props) {
                   <Link
                     color="inherit"
                     component={ReachLink}
-                    to={`/songs/${data.track.song.id}`}
+                    to={`/songs/${data && data.track.song.id}`}
                   >
                     {data.track.song.name}
                   </Link>

@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-export default function TrackDelete(props) {
+export default function TrackDetailsDelete(props) {
   const { isOpen, onCancel, onDelete, track } = props;
   const [isDeleting, setIsDeleting] = React.useState();
 
@@ -52,7 +52,7 @@ export default function TrackDelete(props) {
   );
 }
 
-TrackDelete.propTypes = {
+TrackDetailsDelete.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,

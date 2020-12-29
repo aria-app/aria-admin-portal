@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-export default function SequenceEdit(props) {
+export default function SequenceDetailsEdit(props) {
   const { isOpen, isSaving, onCancel, onSave, sequence } = props;
   const { control, errors, handleSubmit, reset } = useForm();
 
@@ -54,7 +54,7 @@ export default function SequenceEdit(props) {
   );
 }
 
-SequenceEdit.propTypes = {
+SequenceDetailsEdit.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   isSaving: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
