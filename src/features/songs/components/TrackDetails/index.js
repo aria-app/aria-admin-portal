@@ -2,26 +2,27 @@ import { useMutation, useQuery } from '@apollo/client';
 import Box from '@material-ui/core/Box';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Container from '@material-ui/core/Container';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Link from '@material-ui/core/Link';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Link as ReachLink, useNavigate } from '@reach/router';
-import formatDistance from 'date-fns/formatDistance';
-import parseISO from 'date-fns/parseISO';
+import getOr from 'lodash/fp/getOr';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
 
-import shared from '../../shared';
-import * as documentNodes from '../documentNodes';
-import SongDelete from './SongDelete';
-import SongEdit from './SongEdit';
+import shared from '../../../shared';
+import * as documentNodes from '../../documentNodes';
+import TrackDetailsDelete from './TrackDetailsDelete';
+import TrackDetailsEdit from './TrackDetailsEdit';
+import TrackDetailsInfo from './TrackDetailsInfo';
+import TrackDetailsSequences from './TrackDetailsSequences';
 
 const { useAuth } = shared.hooks;
 
@@ -42,23 +43,28 @@ const StyledToolbar = styled(Toolbar)((props) => ({
   flex: 1,
 }));
 
-export default function Song(props) {
-  const { id } = props;
+const StyledTabs = styled(Tabs)((props) => ({
+  borderBottom: `1px solid ${props.theme.palette.divider}`,
+}));
+
+export default function TrackDetails(props) {
+  const { trackId } = props;
   const { user } = useAuth();
-  const [deleteSong] = useMutation(documentNodes.DELETE_SONG);
-  const [updateSong, { loading: updateSongLoading }] = useMutation(
-    documentNodes.UPDATE_SONG,
+  const [deleteTrack] = useMutation(documentNodes.DELETE_TRACK);
+  const [updateTrack, { loading: updateTrackLoading }] = useMutation(
+    documentNodes.UPDATE_TRACK,
   );
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { data, error, loading } = useQuery(documentNodes.GET_SONG, {
+  const { data, error, loading } = useQuery(documentNodes.GET_TRACK, {
     notifyOnNetworkStatusChange: true,
     variables: {
-      id,
+      id: trackId,
     },
   });
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [selectedTab, setSelectedTab] = React.useState('info');
 
   const handleDeleteButtonClick = React.useCallback(() => {
     setIsDeleteOpen(true);
@@ -70,9 +76,9 @@ export default function Song(props) {
 
   const handleDeleteDelete = React.useCallback(async () => {
     try {
-      await deleteSong({
+      await deleteTrack({
         variables: {
-          id: data.song.id,
+          id: data.track.id,
         },
       });
 
@@ -80,13 +86,13 @@ export default function Song(props) {
         variant: 'success',
       });
       setIsDeleteOpen(false);
-      navigate('/songs');
+      navigate(`/songs/${data.track.song.id}`);
     } catch (e) {
       enqueueSnackbar('The song could not be deleted.', {
         variant: 'error',
       });
     }
-  }, [data, deleteSong, enqueueSnackbar, navigate]);
+  }, [data, deleteTrack, enqueueSnackbar, navigate]);
 
   const handleEditButtonClick = React.useCallback(() => {
     setIsEditOpen(true);
@@ -100,19 +106,20 @@ export default function Song(props) {
     async (updates) => {
       try {
         if (
-          updates.bpm === data.song.bpm &&
-          updates.measureCount === data.song.measureCount &&
-          updates.name === data.song.name
+          updates.voiceId === data.track.voice.id &&
+          updates.volume === data.track.volume
         ) {
           enqueueSnackbar('No changes.');
           setIsEditOpen(false);
           return;
         }
 
-        await updateSong({
+        await updateTrack({
           variables: {
-            id: data.song.id,
-            updates,
+            input: {
+              id: data.track.id,
+              ...updates,
+            },
           },
         });
 
@@ -126,11 +133,27 @@ export default function Song(props) {
         });
       }
     },
-    [data, enqueueSnackbar, updateSong],
+    [data, enqueueSnackbar, updateTrack],
+  );
+
+  const handleTabsChange = React.useCallback(
+    (e, value) => {
+      setSelectedTab(value);
+    },
+    [setSelectedTab],
+  );
+
+  const handleSequenceClick = React.useCallback(
+    (sequence) => {
+      navigate(
+        `/songs/${data.track.song.id}/tracks/${trackId}/sequences/${sequence.id}`,
+      );
+    },
+    [data, navigate, trackId],
   );
 
   const isEditVisible = React.useMemo(() => {
-    return data && data.song && data.song.user.id === user.id;
+    return getOr(undefined, 'track.song.user.id', data) === user.id;
   }, [data, user]);
 
   return (
@@ -146,7 +169,16 @@ export default function Song(props) {
                   <Link color="inherit" component={ReachLink} to="/songs">
                     Songs
                   </Link>
-                  <Typography color="textPrimary">{data.song.name}</Typography>
+                  <Link
+                    color="inherit"
+                    component={ReachLink}
+                    to={`/songs/${data.track.song.id}`}
+                  >
+                    {data.track.song.name}
+                  </Link>
+                  <Typography color="textPrimary">
+                    Track {data.track.id}
+                  </Typography>
                 </Breadcrumbs>
               </Box>
               {isEditVisible && (
@@ -158,60 +190,33 @@ export default function Song(props) {
                 <DeleteIcon color="inherit" />
               </IconButton>
             </StyledToolbar>
-            <Box paddingX={3}>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>Name</FormLabel>
-                  <Typography>{data.song.name}</Typography>
-                </FormControl>
-              </Box>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>Created By</FormLabel>
-                  <Typography>
-                    {data.song.user.firstName} {data.song.user.lastName}
-                  </Typography>
-                </FormControl>
-              </Box>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>BPM</FormLabel>
-                  <Typography>{data.song.bpm}</Typography>
-                </FormControl>
-              </Box>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>Measure Count</FormLabel>
-                  <Typography>{data.song.measureCount}</Typography>
-                </FormControl>
-              </Box>
-              <Box paddingTop={3}>
-                <FormControl>
-                  <FormLabel>Modified</FormLabel>
-                  <Typography>
-                    {formatDistance(
-                      parseISO(data.song.dateModified),
-                      new Date(),
-                      {
-                        addSuffix: true,
-                      },
-                    )}
-                  </Typography>
-                </FormControl>
-              </Box>
-            </Box>
-            <SongDelete
+            <StyledTabs
+              indicatorColor="primary"
+              onChange={handleTabsChange}
+              value={selectedTab}
+            >
+              <Tab label="Info" value="info" />
+              <Tab label="Sequences" value="sequences" />
+            </StyledTabs>
+            {selectedTab === 'info' && <TrackDetailsInfo track={data.track} />}
+            {selectedTab === 'sequences' && (
+              <TrackDetailsSequences
+                onSequenceClick={handleSequenceClick}
+                track={data.track}
+              />
+            )}
+            <TrackDetailsDelete
               isOpen={isDeleteOpen}
               onCancel={handleDeleteCancel}
               onDelete={handleDeleteDelete}
-              song={data.song}
+              track={data.track}
             />
-            <SongEdit
+            <TrackDetailsEdit
               isOpen={isEditOpen}
-              isSaving={updateSongLoading}
+              isSaving={updateTrackLoading}
               onCancel={handleEditCancel}
               onSave={handleEditSave}
-              song={data.song}
+              track={data.track}
             />
           </React.Fragment>
         )}

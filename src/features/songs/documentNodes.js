@@ -19,6 +19,31 @@ export const DELETE_SONG = gql`
   }
 `;
 
+export const DELETE_TRACK = gql`
+  mutation DeleteTrack($id: ID!) {
+    deleteTrack(id: $id) {
+      success
+    }
+  }
+`;
+
+export const GET_SEQUENCE = gql`
+  query GetSequence($id: ID!) {
+    sequence(id: $id) {
+      id
+      measureCount
+      notes {
+        id
+        points {
+          x
+          y
+        }
+      }
+      position
+    }
+  }
+`;
+
 export const GET_SONG = gql`
   query GetSong($id: ID!) {
     song(id: $id) {
@@ -28,6 +53,13 @@ export const GET_SONG = gql`
       id
       measureCount
       name
+      tracks {
+        id
+        position
+        voice {
+          name
+        }
+      }
       user {
         id
         email
@@ -70,9 +102,50 @@ export const GET_SONGS = gql`
   }
 `;
 
+export const GET_TRACK = gql`
+  query GetTrack($id: ID!) {
+    track(id: $id) {
+      id
+      position
+      sequences {
+        id
+        measureCount
+        position
+      }
+      song {
+        id
+        name
+        user {
+          id
+        }
+      }
+      voice {
+        id
+        name
+      }
+      volume
+    }
+  }
+`;
+
 export const UPDATE_SONG = gql`
   mutation UpdateSong($id: ID!, $updates: UpdateSongInput!) {
     updateSong(id: $id, updates: $updates) {
+      song {
+        bpm
+        dateModified
+        id
+        measureCount
+        name
+      }
+      success
+    }
+  }
+`;
+
+export const UPDATE_TRACK = gql`
+  mutation UpdateTrack($input: UpdateTrackInput!) {
+    updateTrack(input: $input) {
       song {
         bpm
         dateModified

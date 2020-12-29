@@ -14,7 +14,7 @@ import PrivateRoute from './PrivateRoute';
 import Topbar from './Topbar';
 
 const { useAuth } = shared.hooks;
-const { Song, Songs } = songs.components;
+const { SongDetails, Songs, TrackDetails } = songs.components;
 const { UserDetails, Users } = users.components;
 
 const Root = styled.div((props) => ({
@@ -68,7 +68,11 @@ export default function App() {
             <StyledRouter>
               <Login path="login" />
               <PrivateRoute component={Songs} path="/" />
-              <PrivateRoute component={Song} path="songs/:id" />
+              <PrivateRoute component={SongDetails} path="songs/:songId" />
+              <PrivateRoute
+                component={TrackDetails}
+                path="songs/:songId/tracks/:trackId"
+              />
               <PrivateRoute component={Songs} path="songs" />
               <PrivateRoute component={Users} path="users" />
               <PrivateRoute component={UserDetails} path="users/:id" />
