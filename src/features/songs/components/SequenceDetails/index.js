@@ -253,6 +253,7 @@ export default function SequenceDetails(props) {
             )}
             {selectedTab === 'notes' && (
               <SequenceDetailsNotes
+                isEditable={isEditVisible}
                 onNoteClick={handleNoteClick}
                 sequence={data.sequence}
               />

@@ -11,20 +11,26 @@ const Root = styled.div({
 });
 
 export default function SequenceDetailsNotes(props) {
-  const { onNoteClick, sequence } = props;
+  const { isEditable, onNoteClick, sequence } = props;
 
   const handleNoteClick = React.useCallback(
     (note) => {
+      if (!isEditable) return;
+
       onNoteClick(note);
     },
-    [onNoteClick],
+    [isEditable, onNoteClick],
   );
 
   return (
     <Root>
       <List style={{ overflowY: 'auto' }}>
         {sequence.notes.map((note) => (
-          <ListItem button key={note.id} onClick={() => handleNoteClick(note)}>
+          <ListItem
+            button={isEditable}
+            key={note.id}
+            onClick={() => handleNoteClick(note)}
+          >
             <ListItemText
               primary="Note"
               secondary={`(${note.points[0].x}, ${note.points[0].y}), (${note.points[1].x}, ${note.points[1].y})`}
@@ -37,6 +43,7 @@ export default function SequenceDetailsNotes(props) {
 }
 
 SequenceDetailsNotes.propTypes = {
+  isEditable: PropTypes.bool,
   onNoteClick: PropTypes.func,
   sequence: PropTypes.object,
 };
