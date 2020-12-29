@@ -19,10 +19,10 @@ import styled from 'styled-components';
 
 import shared from '../../../shared';
 import * as documentNodes from '../../documentNodes';
-import TrackDetailsDelete from './TrackDetailsDelete';
-import TrackDetailsEdit from './TrackDetailsEdit';
-import TrackDetailsInfo from './TrackDetailsInfo';
-import TrackDetailsSequences from './TrackDetailsSequences';
+import SequenceDetailsDelete from './SequenceDetailsDelete';
+import SequenceDetailsEdit from './SequenceDetailsEdit';
+import SequenceDetailsInfo from './SequenceDetailsInfo';
+import SequenceDetailsNotes from './SequenceDetailsNotes';
 
 const { useAuth } = shared.hooks;
 
@@ -47,19 +47,19 @@ const StyledTabs = styled(Tabs)((props) => ({
   borderBottom: `1px solid ${props.theme.palette.divider}`,
 }));
 
-export default function TrackDetails(props) {
-  const { trackId } = props;
+export default function SequenceDetails(props) {
+  const { sequenceId, songId } = props;
   const { user } = useAuth();
-  const [deleteTrack] = useMutation(documentNodes.DELETE_TRACK);
-  const [updateTrack, { loading: updateTrackLoading }] = useMutation(
-    documentNodes.UPDATE_TRACK,
+  const [deleteSequence] = useMutation(documentNodes.DELETE_SEQUENCE);
+  const [updateSequence, { loading: updateSequenceLoading }] = useMutation(
+    documentNodes.UPDATE_SEQUENCE,
   );
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { data, error, loading } = useQuery(documentNodes.GET_TRACK, {
+  const { data, error, loading } = useQuery(documentNodes.GET_SEQUENCE, {
     notifyOnNetworkStatusChange: true,
     variables: {
-      id: trackId,
+      id: sequenceId,
     },
   });
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
@@ -76,23 +76,23 @@ export default function TrackDetails(props) {
 
   const handleDeleteDelete = React.useCallback(async () => {
     try {
-      await deleteTrack({
+      await deleteSequence({
         variables: {
-          id: data.track.id,
+          id: data.sequence.id,
         },
       });
 
-      enqueueSnackbar('The track was deleted.', {
+      enqueueSnackbar('The sequence was deleted.', {
         variant: 'success',
       });
       setIsDeleteOpen(false);
-      navigate(`/songs/${data.track.song.id}`);
+      navigate(`/songs/${songId}/tracks/${data.sequence.track.id}`);
     } catch (e) {
-      enqueueSnackbar('The track could not be deleted.', {
+      enqueueSnackbar('The sequence could not be deleted.', {
         variant: 'error',
       });
     }
-  }, [data, deleteTrack, enqueueSnackbar, navigate]);
+  }, [data, deleteSequence, enqueueSnackbar, navigate, songId]);
 
   const handleEditButtonClick = React.useCallback(() => {
     setIsEditOpen(true);
@@ -105,45 +105,37 @@ export default function TrackDetails(props) {
   const handleEditSave = React.useCallback(
     async (updates) => {
       try {
-        if (
-          updates.voiceId === data.track.voice.id &&
-          updates.volume === data.track.volume
-        ) {
+        if (updates.measureCount === data.sequence.measureCount) {
           enqueueSnackbar('No changes.');
           setIsEditOpen(false);
           return;
         }
 
-        await updateTrack({
+        await updateSequence({
           variables: {
             input: {
-              id: data.track.id,
+              id: data.sequence.id,
               ...updates,
             },
           },
         });
 
-        enqueueSnackbar('The track was updated.', {
+        enqueueSnackbar('The sequence was updated.', {
           variant: 'success',
         });
         setIsEditOpen(false);
       } catch (e) {
-        enqueueSnackbar('The track could not be updated.', {
+        enqueueSnackbar('The sequence could not be updated.', {
           variant: 'error',
         });
       }
     },
-    [data, enqueueSnackbar, updateTrack],
+    [data, enqueueSnackbar, updateSequence],
   );
 
-  const handleSequenceClick = React.useCallback(
-    (sequence) => {
-      navigate(
-        `/songs/${data.track.song.id}/tracks/${trackId}/sequences/${sequence.id}`,
-      );
-    },
-    [data, navigate, trackId],
-  );
+  const handleNoteClick = React.useCallback((note) => {
+    console.log('Clicked Note', note);
+  }, []);
 
   const handleTabsChange = React.useCallback(
     (e, value) => {
@@ -153,7 +145,7 @@ export default function TrackDetails(props) {
   );
 
   const isEditVisible = React.useMemo(() => {
-    return getOr(undefined, 'track.song.user.id', data) === user.id;
+    return getOr(undefined, 'sequence.track.song.user.id', data) === user.id;
   }, [data, user]);
 
   return (
@@ -172,12 +164,19 @@ export default function TrackDetails(props) {
                   <Link
                     color="inherit"
                     component={ReachLink}
-                    to={`/songs/${data.track.song.id}`}
+                    to={`/songs/${songId}`}
                   >
-                    {data.track.song.name}
+                    {data.sequence.track.song.name}
+                  </Link>
+                  <Link
+                    color="inherit"
+                    component={ReachLink}
+                    to={`/songs/${songId}/tracks/${data.sequence.track.id}`}
+                  >
+                    Track {data.sequence.track.id}
                   </Link>
                   <Typography color="textPrimary">
-                    Track {data.track.id}
+                    Sequence {data.sequence.id}
                   </Typography>
                 </Breadcrumbs>
               </Box>
@@ -196,27 +195,29 @@ export default function TrackDetails(props) {
               value={selectedTab}
             >
               <Tab label="Info" value="info" />
-              <Tab label="Sequences" value="sequences" />
+              <Tab label="Notes" value="notes" />
             </StyledTabs>
-            {selectedTab === 'info' && <TrackDetailsInfo track={data.track} />}
-            {selectedTab === 'sequences' && (
-              <TrackDetailsSequences
-                onSequenceClick={handleSequenceClick}
-                track={data.track}
+            {selectedTab === 'info' && (
+              <SequenceDetailsInfo sequence={data.sequence} />
+            )}
+            {selectedTab === 'notes' && (
+              <SequenceDetailsNotes
+                onNoteClick={handleNoteClick}
+                sequence={data.sequence}
               />
             )}
-            <TrackDetailsDelete
+            <SequenceDetailsDelete
               isOpen={isDeleteOpen}
               onCancel={handleDeleteCancel}
               onDelete={handleDeleteDelete}
-              track={data.track}
+              sequence={data.sequence}
             />
-            <TrackDetailsEdit
+            <SequenceDetailsEdit
               isOpen={isEditOpen}
-              isSaving={updateTrackLoading}
+              isSaving={updateSequenceLoading}
               onCancel={handleEditCancel}
               onSave={handleEditSave}
-              track={data.track}
+              sequence={data.sequence}
             />
           </React.Fragment>
         )}

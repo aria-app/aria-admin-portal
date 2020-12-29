@@ -13,7 +13,7 @@ const Root = styled.div({
   overflowY: 'auto',
 });
 
-export default function TrackDetailsTracks(props) {
+export default function TrackDetailsSequences(props) {
   const apolloClient = useApolloClient();
   const { onSequenceClick, track } = props;
 
@@ -55,7 +55,7 @@ export default function TrackDetailsTracks(props) {
   );
 }
 
-TrackDetailsTracks.propTypes = {
+TrackDetailsSequences.propTypes = {
   onSequenceClick: PropTypes.func,
   track: PropTypes.object,
 };
