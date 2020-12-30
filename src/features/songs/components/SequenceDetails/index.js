@@ -53,7 +53,7 @@ export default function SequenceDetails(props) {
   const { user } = useAuth();
   const [deleteSequence] = useMutation(documentNodes.DELETE_SEQUENCE);
   const [updateNote, { loading: updateNoteLoading }] = useMutation(
-    documentNodes.UPDATE_NOTE,
+    documentNodes.UPDATE_NOTES_POINTS,
   );
   const [updateSequence, { loading: updateSequenceLoading }] = useMutation(
     documentNodes.UPDATE_SEQUENCE,
@@ -166,10 +166,14 @@ export default function SequenceDetails(props) {
         await updateNote({
           variables: {
             input: {
-              id: selectedNote.id,
-              points: [
-                { x: updates.startX, y: updates.startY },
-                { x: updates.endX, y: updates.endY },
+              notes: [
+                {
+                  id: selectedNote.id,
+                  points: [
+                    { x: updates.startX, y: updates.startY },
+                    { x: updates.endX, y: updates.endY },
+                  ],
+                },
               ],
             },
           },

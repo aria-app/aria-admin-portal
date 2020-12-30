@@ -144,10 +144,10 @@ export const GET_TRACK = gql`
   }
 `;
 
-export const UPDATE_NOTE = gql`
-  mutation UpdateNote($input: UpdateNoteInput!) {
-    updateNote(input: $input) {
-      note {
+export const UPDATE_NOTES_POINTS = gql`
+  mutation UpdateNotesPoints($input: UpdateNotesPointsInput!) {
+    updateNotesPoints(input: $input) {
+      notes {
         id
         points {
           x
